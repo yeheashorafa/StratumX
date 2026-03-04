@@ -1,9 +1,11 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 
 export default function CartPage() {
+  const router = useRouter();
   const items = useCartStore((state) => state.items);
   const removeItem = useCartStore((state) => state.removeItem);
   const clearCart = useCartStore((state) => state.clearCart);
@@ -14,37 +16,8 @@ export default function CartPage() {
     0,
   );
 
-  const handleCheckout = async () => {
-    setLoading(true);
-    try {
-      const payload = {
-        items: items.map((item) => ({
-          productId: item.id,
-          quantity: item.quantity,
-        })),
-        businessId: 1, // hardcoded for demo or derived from context
-      };
-
-      const res = await fetch("/api/orders/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData?.error || "Checkout failed");
-      }
-
-      const data = await res.json();
-      alert(`Order placed successfully! Order Number: ${data.orderNumber}`);
-      clearCart();
-    } catch (err) {
-      console.error(err);
-      alert(err.message || "Failed to checkout");
-    } finally {
-      setLoading(false);
-    }
+  const handleCheckout = () => {
+    router.push("/checkout");
   };
 
   return (

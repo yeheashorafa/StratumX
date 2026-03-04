@@ -14,6 +14,7 @@ import pageRoutes from "./modules/page/page.Routes.js";
 import orderRoutes from "./modules/order/order.Routes.js";
 import cartRoutes from "./modules/cart/cart.Routes.js";
 import contactRoutes from "./modules/contact/contact.Routes.js";
+import paymentRoutes from "./modules/payment/payment.Routes.js";
 
 // Middlewares
 import errorHandler from "./middlewares/errorHandler.js";
@@ -28,6 +29,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(morgan("dev"));
+
+// Serve static files
+app.use("/uploads", express.static("uploads"));
 
 // Simple test route
 app.get("/", (req, res) => {
@@ -44,6 +48,7 @@ app.use("/api/pages", pageRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/cart", cartRoutes);
 app.use("/api/contacts", contactRoutes);
+app.use("/api/payment", paymentRoutes);
 
 // Global error handler
 app.use(errorHandler);

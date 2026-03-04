@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { createCheckoutSession } from "../api/payment";
+import { createCheckoutSession } from "@/api/payment";
 
 export default function CheckoutPage() {
   const router = useRouter();
