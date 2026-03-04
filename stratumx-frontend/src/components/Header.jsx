@@ -1,0 +1,155 @@
+"use client";
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useCartStore } from "@/store/cartStore";
+
+export default function Header({ lang, setLang }) {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const items = useCartStore((state) => state.items);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const cartItemCount = mounted
+    ? items.reduce((acc, item) => acc + item.quantity, 0)
+    : 0;
+
+  const links = [
+    { label: lang === "en" ? "Home" : "الرئيسية", href: "/" },
+    { label: lang === "en" ? "About" : "من نحن", href: "/about" },
+    { label: lang === "en" ? "Services" : "خدماتنا", href: "/services" },
+    { label: lang === "en" ? "Products" : "منتجاتنا", href: "/products" },
+    { label: lang === "en" ? "Store" : "المتجر", href: "/store" },
+    { label: lang === "en" ? "Contact" : "تواصل معنا", href: "/contact" },
+    { label: lang === "en" ? "Admin" : "لوحة التحكم", href: "/dashboard" },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/70 dark:bg-black/70 border-b border-gray-200 dark:border-gray-800 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0 flex items-center">
+            <Link
+              href="/"
+              className="text-2xl font-extrabold text-blue-600 dark:text-blue-400 tracking-tighter"
+            >
+              Stratum<span className="text-gray-900 dark:text-white">X</span>
+            </Link>
+          </div>
+
+          {/* Desktop Menu */}
+          <div className="hidden md:flex md:items-center space-x-6 space-x-reverse">
+            <ul className="flex items-center gap-6 text-sm font-medium text-gray-700 dark:text-gray-300">
+              {links.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
+                  >
+                    {link.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+
+            <div className="ml-4 hidden md:flex items-center gap-4">
+              <button
+                onClick={() => setLang(lang === "en" ? "ar" : "en")}
+                className="px-3 py-1.5 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-sm font-semibold transition-all duration-200"
+              >
+                {lang === "en" ? "عربي" : "EN"}
+              </button>
+            </div>
+          </div>
+
+          {/* Cart & Mobile Menu Button */}
+          <div className="flex items-center gap-4">
+            <Link
+              href="/cart"
+              className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              {cartItemCount > 0 && (
+                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1 -translate-y-1 shadow-sm">
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
+
+            <button
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              className="md:hidden p-2 rounded-md text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 focus:outline-none"
+            >
+              <svg
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                {isMobileMenuOpen ? (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                ) : (
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M4 6h16M4 12h16m-7 6h7"
+                  />
+                )}
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800 animate-fade-in shadow-xl">
+          <div className="px-4 pt-2 pb-6 space-y-2">
+            {links.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="block px-3 py-2 rounded-md text-base font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+                dir={lang === "ar" ? "rtl" : "ltr"}
+              >
+                {link.label}
+              </Link>
+            ))}
+            <button
+              onClick={() => {
+                setLang(lang === "en" ? "ar" : "en");
+                setIsMobileMenuOpen(false);
+              }}
+              className="w-full text-left px-3 py-2 rounded-md text-base font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 hover:bg-blue-100 dark:hover:bg-blue-900/50 mt-4"
+              dir={lang === "ar" ? "rtl" : "ltr"}
+            >
+              {lang === "en" ? "التبديل للعربية" : "Switch to English"}
+            </button>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}

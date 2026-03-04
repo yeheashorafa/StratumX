@@ -1,0 +1,251 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Business {
+  id          Int              @id @default(autoincrement())
+  name        String
+  slug        String           @unique
+  logo        String?
+  defaultLang String           @default("en")
+  users       User[]
+  roles       Role[]
+  pages       Page[]
+  services    Service[]
+  categories  Category[]
+  products    Product[]
+  orders      Order[]
+  contacts    ContactMessage[]
+  carts       Cart[]
+  settings    Settings?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model Role {
+  id          Int      @id @default(autoincrement())
+  businessId  Int
+  name        String
+  description String?
+  users       User[]
+  business    Business @relation(fields: [businessId], references: [id])
+}
+
+model User {
+  id         Int      @id @default(autoincrement())
+  businessId Int
+  roleId     Int
+  name       String
+  email      String
+  password   String
+  isActive   Boolean  @default(true)
+  cart       Cart?
+  orders     Order[]
+  business   Business @relation(fields: [businessId], references: [id])
+  role       Role     @relation(fields: [roleId], references: [id])
+
+  @@unique([businessId, email]) // email unique per business
+}
+
+model Settings {
+  id             Int      @id @default(autoincrement())
+  businessId     Int      @unique
+  seoTitle       String?
+  seoDescription String?
+  currency       String   @default("USD")
+  theme          String   @default("default")
+  cacheTTL       Int      @default(3600) // seconds
+  business       Business @relation(fields: [businessId], references: [id])
+}
+
+//////////////////////////
+// Pages & Services
+//////////////////////////
+
+model Page {
+  id           Int               @id @default(autoincrement())
+  businessId   Int
+  slug         String
+  isPublished  Boolean           @default(true)
+  isDeleted    Boolean           @default(false)
+  translations PageTranslation[]
+  business     Business          @relation(fields: [businessId], references: [id])
+
+  @@unique([businessId, slug])
+}
+
+model PageTranslation {
+  id              Int     @id @default(autoincrement())
+  pageId          Int
+  lang            String
+  title           String
+  body            String
+  metaTitle       String?
+  metaDescription String?
+  page            Page    @relation(fields: [pageId], references: [id])
+
+  @@unique([pageId, lang])
+}
+
+model Service {
+  id           Int                  @id @default(autoincrement())
+  businessId   Int
+  icon         String?
+  isActive     Boolean              @default(true)
+  isDeleted    Boolean              @default(false)
+  translations ServiceTranslation[]
+  business     Business             @relation(fields: [businessId], references: [id])
+}
+
+model ServiceTranslation {
+  id          Int     @id @default(autoincrement())
+  serviceId   Int
+  lang        String
+  title       String
+  description String
+  service     Service @relation(fields: [serviceId], references: [id])
+
+  @@unique([serviceId, lang])
+}
+
+//////////////////////////
+// E-Commerce Domain
+//////////////////////////
+
+model Category {
+  id           Int                   @id @default(autoincrement())
+  businessId   Int
+  parentId     Int?
+  isActive     Boolean               @default(true)
+  isDeleted    Boolean               @default(false)
+  translations CategoryTranslation[]
+  products     Product[]
+  business     Business              @relation(fields: [businessId], references: [id])
+  parent       Category?             @relation("CategoryParent", fields: [parentId], references: [id])
+  children     Category[]            @relation("CategoryParent")
+}
+
+model CategoryTranslation {
+  id         Int      @id @default(autoincrement())
+  categoryId Int
+  lang       String
+  name       String
+  slug       String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  @@unique([categoryId, lang])
+}
+
+model Product {
+  id           Int                  @id @default(autoincrement())
+  businessId   Int
+  categoryId   Int
+  price        Float
+  stock        Int
+  sku          String
+  isActive     Boolean              @default(true)
+  isDeleted    Boolean              @default(false)
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  translations ProductTranslation[]
+  images       ProductImage[]
+  category     Category             @relation(fields: [categoryId], references: [id])
+  business     Business             @relation(fields: [businessId], references: [id])
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+}
+
+model ProductTranslation {
+  id          Int     @id @default(autoincrement())
+  productId   Int
+  lang        String
+  name        String
+  description String
+  product     Product @relation(fields: [productId], references: [id])
+
+  @@unique([productId, lang])
+}
+
+model ProductImage {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  url       String
+  altText   String?
+  isPrimary Boolean @default(false)
+  product   Product @relation(fields: [productId], references: [id])
+}
+
+//////////////////////////
+// Cart & Orders
+//////////////////////////
+
+model Cart {
+  id         Int        @id @default(autoincrement())
+  userId     Int        @unique
+  businessId Int
+  items      CartItem[]
+  user       User       @relation(fields: [userId], references: [id])
+  business   Business   @relation(fields: [businessId], references: [id])
+}
+
+model CartItem {
+  id        Int     @id @default(autoincrement())
+  cartId    Int
+  productId Int
+  quantity  Int
+  cart      Cart    @relation(fields: [cartId], references: [id])
+  product   Product @relation(fields: [productId], references: [id])
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id          Int         @id @default(autoincrement())
+  businessId  Int
+  userId      Int
+  orderNumber String      @unique
+  totalAmount Float
+  status      String      @default("pending") // pending/completed/cancelled
+  createdAt   DateTime    @default(now())
+  items       OrderItem[]
+  user        User        @relation(fields: [userId], references: [id])
+  business    Business    @relation(fields: [businessId], references: [id])
+}
+
+model OrderItem {
+  id            Int     @id @default(autoincrement())
+  orderId       Int
+  productId     Int
+  quantity      Int
+  priceSnapshot Float
+  order         Order   @relation(fields: [orderId], references: [id])
+  product       Product @relation(fields: [productId], references: [id])
+
+  @@unique([orderId, productId])
+}
+
+//////////////////////////
+// Contact
+//////////////////////////
+
+model ContactMessage {
+  id         Int      @id @default(autoincrement())
+  businessId Int
+  name       String
+  email      String
+  message    String
+  isRead     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  business   Business @relation(fields: [businessId], references: [id])
+}
