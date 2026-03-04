@@ -12,28 +12,38 @@ export default function AdminLayout({ children }) {
   const [adminUser, setAdminUser] = useState(null);
 
   useEffect(() => {
-    // Check authentication
-    const token = localStorage.getItem("admin_token");
-    const userStr = localStorage.getItem("admin_user");
+    const checkAuth = () => {
+      const token = localStorage.getItem("admin_token");
+      const userStr = localStorage.getItem("admin_user");
 
-    if (!token || !userStr) {
-      router.replace("/dashboard/login");
-    } else {
-      try {
-        setAdminUser(JSON.parse(userStr));
-        setIsAuthenticated(true);
-      } catch (e) {
-        localStorage.removeItem("admin_token");
-        localStorage.removeItem("admin_user");
-        router.replace("/dashboard/login");
+      if (!token || !userStr) {
+        if (pathname !== "/dashboard/login") {
+          router.replace("/dashboard/login");
+        }
+      } else {
+        try {
+          setAdminUser(JSON.parse(userStr));
+          setIsAuthenticated(true);
+          if (pathname === "/dashboard/login") {
+            router.replace("/dashboard");
+          }
+        } catch (e) {
+          localStorage.removeItem("admin_token");
+          localStorage.removeItem("admin_user");
+          if (pathname !== "/dashboard/login") {
+            router.replace("/dashboard/login");
+          }
+        }
       }
-    }
-    setLoading(false);
-  }, [router]);
+      setLoading(false);
+    };
+    checkAuth();
+  }, [router, pathname]);
 
   const handleLogout = () => {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
+    setIsAuthenticated(false);
     router.replace("/dashboard/login");
   };
 
@@ -45,7 +55,15 @@ export default function AdminLayout({ children }) {
     );
   }
 
-  if (!isAuthenticated) return null;
+  // Prevent sidebar rendering / content hiding during login
+  const isLoginPage = pathname === "/dashboard/login";
+  if (!isAuthenticated && !isLoginPage) return null;
+
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">{children}</div>
+    );
+  }
 
   const links = [
     {

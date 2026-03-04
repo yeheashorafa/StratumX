@@ -5,7 +5,7 @@ import {
   createProduct,
   updateProduct,
   deleteProduct,
-} from "../../../api/products";
+} from "@/api/products";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);

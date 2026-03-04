@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
+import { useUIStore } from "@/store/uiStore";
 
 export default function ContactPage() {
+  const { language } = useUIStore();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -29,11 +31,12 @@ export default function ContactPage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
-            Get in Touch
+            {language === "en" ? "Get in Touch" : "تواصل معنا"}
           </h1>
           <p className="text-lg text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-            Have a project in mind? We'd love to hear from you. Drop us a
-            message and our team will get back to you shortly.
+            {language === "en"
+              ? "Have a project in mind? We'd love to hear from you. Drop us a message and our team will get back to you shortly."
+              : "لديك مشروع في ذهنك؟ يسعدنا الاستماع إليك. أرسل لنا رسالة وسيعود إليك فريقنا قريباً."}
           </p>
         </div>
 
@@ -53,7 +56,9 @@ export default function ContactPage() {
                   d="M5 13l4 4L19 7"
                 />
               </svg>
-              Message sent successfully!
+              {language === "en"
+                ? "Message sent successfully!"
+                : "تم إرسال رسالتك بنجاح!"}
             </div>
           )}
 
@@ -64,7 +69,7 @@ export default function ContactPage() {
                   htmlFor="name"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Full Name
+                  {language === "en" ? "Full Name" : "الاسم الكامل"}
                 </label>
                 <input
                   type="text"
@@ -74,7 +79,7 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   className="w-full bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                  placeholder="John Doe"
+                  placeholder={language === "en" ? "John Doe" : "محمد أحمد"}
                 />
               </div>
               <div>
@@ -82,7 +87,7 @@ export default function ContactPage() {
                   htmlFor="email"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Email Address
+                  {language === "en" ? "Email Address" : "البريد الإلكتروني"}
                 </label>
                 <input
                   type="email"
@@ -92,7 +97,9 @@ export default function ContactPage() {
                   onChange={handleChange}
                   required
                   className="w-full bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
-                  placeholder="john@example.com"
+                  placeholder={
+                    language === "en" ? "john@example.com" : "ahmad@example.com"
+                  }
                 />
               </div>
             </div>
@@ -102,7 +109,7 @@ export default function ContactPage() {
                 htmlFor="message"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Your Message
+                {language === "en" ? "Your Message" : "رسالتك"}
               </label>
               <textarea
                 name="message"
@@ -112,7 +119,11 @@ export default function ContactPage() {
                 onChange={handleChange}
                 required
                 className="w-full bg-white dark:bg-black border border-gray-300 dark:border-gray-700 rounded-xl px-4 py-3 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors resize-none"
-                placeholder="How can we help you?"
+                placeholder={
+                  language === "en"
+                    ? "How can we help you?"
+                    : "كيف يمكننا مساعدتك؟"
+                }
               ></textarea>
             </div>
 
@@ -141,8 +152,10 @@ export default function ContactPage() {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-              ) : (
+              ) : language === "en" ? (
                 "Send Message"
+              ) : (
+                "إرسال الرسالة"
               )}
             </button>
           </form>

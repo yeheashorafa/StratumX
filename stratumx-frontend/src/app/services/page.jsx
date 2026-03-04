@@ -1,47 +1,66 @@
 "use client";
 import React, { useEffect, useState } from "react";
+import { useUIStore } from "@/store/uiStore";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const { language } = useUIStore();
 
   // Fallback dummy data if API fails or is empty while showcasing
   const dummyServices = [
     {
       id: 1,
-      title: "Web Development",
-      description:
+      enTitle: "Web Development",
+      arTitle: "تطوير الويب",
+      enDescription:
         "Custom scalable web applications built with modern frameworks.",
+      arDescription:
+        "تطبيقات الويب المخصصة القابلة للتطوير باستخدام أحدث إطارات العمل.",
     },
     {
       id: 2,
-      title: "UI/UX Design",
-      description:
+      enTitle: "UI/UX Design",
+      arTitle: "تصميم واجهة وتجربة المستخدم",
+      enDescription:
         "Beautiful, intuitive interfaces that enhance user experience.",
+      arDescription: "واجهات جذابة وبديهية تعزز تجربة المستخدم بشكل كبير.",
     },
     {
       id: 3,
-      title: "Backend Architecture",
-      description:
+      enTitle: "Backend Architecture",
+      arTitle: "هيكلة وتطوير الأنظمة الخلفية",
+      enDescription:
         "Robust Node.js REST APIs and microservices tailored to your needs.",
+      arDescription:
+        "واجهات برمجة تطبيقات (APIs) قوية وخدمات مصغرة مصممة لتلبية احتياجاتك.",
     },
     {
       id: 4,
-      title: "E-Commerce Solutions",
-      description:
+      enTitle: "E-Commerce Solutions",
+      arTitle: "حلول التجارة الإلكترونية",
+      enDescription:
         "High-performance storefronts integrated with secure payment gateways.",
+      arDescription:
+        "واجهات متاجر عالية الأداء مدمجة مع بوابات دفع آمنة موثوقة.",
     },
     {
       id: 5,
-      title: "SEO Optimization",
-      description:
+      enTitle: "SEO Optimization",
+      arTitle: "تحسين محركات البحث",
+      enDescription:
         "Drive traffic with technical SEO and optimized content delivery.",
+      arDescription:
+        "زيادة الزيارات باستخدام التكتيكات التقنية والمحتوى المحسن.",
     },
     {
       id: 6,
-      title: "Database Architecture",
-      description:
-        "Scalable relatiional and NoSQL database modeling using Prisma.",
+      enTitle: "Database Architecture",
+      arTitle: "هندسة قواعد البيانات",
+      enDescription:
+        "Scalable relational and NoSQL database modeling using Prisma.",
+      arDescription:
+        "نمذجة قواعد البيانات العلاقية وغير العلاقية باستخدام Prisma.",
     },
   ];
 
@@ -61,11 +80,12 @@ export default function ServicesPage() {
       <div className="bg-white dark:bg-black py-16 border-b border-gray-200 dark:border-gray-800 text-center">
         <div className="max-w-3xl mx-auto px-4 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-6">
-            Our Services
+            {language === "en" ? "Our Services" : "خدماتنا"}
           </h1>
           <p className="text-lg text-gray-600 dark:text-gray-400">
-            Discover a comprehensive suite of digital solutions aimed at
-            transforming your business presence online.
+            {language === "en"
+              ? "Discover a comprehensive suite of digital solutions aimed at transforming your business presence online."
+              : "اكتشف مجموعة شاملة من الحلول الرقمية التي تهدف إلى تحويل وتطوير حضور أعمالك على الإنترنت."}
           </p>
         </div>
       </div>
@@ -84,7 +104,7 @@ export default function ServicesPage() {
                 className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-sm hover:shadow-2xl border border-gray-100 dark:border-gray-700 transition-all duration-300 transform hover:-translate-y-2"
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6">
+                <div className="w-14 h-14 bg-linear-to-br from-blue-100 to-indigo-100 dark:from-blue-900/40 dark:to-indigo-900/40 text-blue-600 dark:text-blue-400 rounded-2xl flex items-center justify-center mb-6">
                   <svg
                     className="w-6 h-6"
                     fill="none"
@@ -100,10 +120,12 @@ export default function ServicesPage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                  {service.title}
+                  {language === "en" ? service.enTitle : service.arTitle}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                  {service.description}
+                  {language === "en"
+                    ? service.enDescription
+                    : service.arDescription}
                 </p>
               </div>
             ))}

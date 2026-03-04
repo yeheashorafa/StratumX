@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
+import { useUIStore } from "@/store/uiStore";
 
 export default function CartPage() {
   const router = useRouter();
@@ -10,6 +11,7 @@ export default function CartPage() {
   const removeItem = useCartStore((state) => state.removeItem);
   const clearCart = useCartStore((state) => state.clearCart);
   const [loading, setLoading] = useState(false);
+  const { language } = useUIStore();
 
   const total = items.reduce(
     (acc, item) => acc + item.price * item.quantity,
@@ -24,7 +26,7 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-8 animate-fade-in">
-          Shopping Cart
+          {language === "en" ? "Shopping Cart" : "سلة التسوق"}
         </h1>
 
         {!items.length ? (
@@ -45,17 +47,18 @@ export default function CartPage() {
               </svg>
             </div>
             <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Your cart is empty
+              {language === "en" ? "Your cart is empty" : "سلتك فارغة"}
             </h2>
             <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-              Looks like you haven't added anything to your cart yet. Let's get
-              you started.
+              {language === "en"
+                ? "Looks like you haven't added anything to your cart yet. Let's get you started."
+                : "يبدو أنك لم تضف أي شيء إلى سلتك بعد. لنبدأ من هنا."}
             </p>
             <Link
               href="/store"
               className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300"
             >
-              Continue Shopping
+              {language === "en" ? "Continue Shopping" : "تابع التسوق"}
             </Link>
           </div>
         ) : (
@@ -99,7 +102,8 @@ export default function CartPage() {
                       {item.name}
                     </h3>
                     <p className="text-gray-500 dark:text-gray-400 mb-4">
-                      Quantity: {item.quantity}
+                      {language === "en" ? "Quantity" : "الكمية"}:{" "}
+                      {item.quantity}
                     </p>
                     <div className="flex items-center justify-center sm:justify-between">
                       <span className="font-extrabold text-lg text-blue-600 dark:text-blue-400">
@@ -109,7 +113,7 @@ export default function CartPage() {
                         onClick={() => removeItem(item.id)}
                         className="text-red-500 hover:text-red-700 font-medium text-sm ml-4 sm:ml-0 transition-colors"
                       >
-                        Remove
+                        {language === "en" ? "Remove" : "إزالة"}
                       </button>
                     </div>
                   </div>
@@ -120,25 +124,27 @@ export default function CartPage() {
             {/* Order Summary */}
             <div className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700 sticky top-24 animate-fade-in animation-delay-300">
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-                Order Summary
+                {language === "en" ? "Order Summary" : "ملخص الطلب"}
               </h2>
 
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                  <span>Subtotal</span>
+                  <span>
+                    {language === "en" ? "Subtotal" : "المجموع الفرعي"}
+                  </span>
                   <span className="text-gray-900 dark:text-white font-medium">
                     ${total.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex justify-between text-gray-600 dark:text-gray-400">
-                  <span>Tax</span>
+                  <span>{language === "en" ? "Tax" : "الضريبة"}</span>
                   <span className="text-gray-900 dark:text-white font-medium">
                     $0.00
                   </span>
                 </div>
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    Total
+                    {language === "en" ? "Total" : "المجموع"}
                   </span>
                   <span className="text-xl font-extrabold text-blue-600 dark:text-blue-400">
                     ${total.toFixed(2)}
@@ -171,8 +177,10 @@ export default function CartPage() {
                       d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                     ></path>
                   </svg>
-                ) : (
+                ) : language === "en" ? (
                   "Proceed to Checkout"
+                ) : (
+                  "المتابعة للدفع"
                 )}
               </button>
             </div>

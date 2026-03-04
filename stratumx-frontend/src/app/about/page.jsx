@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { useUIStore } from "@/store/uiStore";
 
 export default function AboutPage() {
   const [mounted, setMounted] = useState(false);
+  const { language } = useUIStore();
 
   useEffect(() => {
     setMounted(true);
@@ -18,12 +20,12 @@ export default function AboutPage() {
         <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay pointer-events-none"></div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10 animate-fade-in">
           <h1 className="text-4xl md:text-5xl font-extrabold mb-6 tracking-tight">
-            About StratumX
+            {language === "en" ? "About StratumX" : "عن ستراتم اكس"}
           </h1>
           <p className="text-lg md:text-xl text-blue-100 max-w-3xl mx-auto leading-relaxed">
-            A comprehensive Technical Showcase combining a powerful corporate
-            portal with a dynamic e-commerce storefront, designed for peak
-            performance and elegant user experiences.
+            {language === "en"
+              ? "A comprehensive Technical Showcase combining a powerful corporate portal with a dynamic e-commerce storefront, designed for peak performance and elegant user experiences."
+              : "منصة تقنية شاملة تجمع بين بوابة إلكترونية قوية للشركات ومتجر إلكتروني ديناميكي، مصممة لأداء فائق وتجارب مستخدم أنيقة."}
           </p>
         </div>
       </section>
@@ -50,13 +52,12 @@ export default function AboutPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Our Mission
+                {language === "en" ? "Our Mission" : "مهمتنا"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                To provide a seamless digital experience that proves the
-                capability of modern web technologies. We focus on clean
-                architecture, lightning-fast rendering, and intuitive user
-                interfaces that scale gracefully across all devices.
+                {language === "en"
+                  ? "To provide a seamless digital experience that proves the capability of modern web technologies. We focus on clean architecture, lightning-fast rendering, and intuitive user interfaces that scale gracefully across all devices."
+                  : "تقديم تجربة رقمية سلسة تثبت قدرات تقنيات الويب الحديثة. نركز على التصميم النظيف، الأداء السريع للغاية، وواجهات مستخدم بديهية تتوسع بسلاسة عبر جميع الأجهزة."}
               </p>
             </div>
 
@@ -84,13 +85,12 @@ export default function AboutPage() {
                 </svg>
               </div>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Our Vision
+                {language === "en" ? "Our Vision" : "رؤيتنا"}
               </h2>
               <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-                To be the ultimate benchmark for full-stack developers crafting
-                production-ready React applications. We demonstrate how to
-                flawlessly integrate complex backend services with beautiful
-                frontend designs.
+                {language === "en"
+                  ? "To be the ultimate benchmark for full-stack developers crafting production-ready React applications. We demonstrate how to flawlessly integrate complex backend services with beautiful frontend designs."
+                  : "أن نكون المعيار الأسمى للمطورين المتكاملين الذين يبنون تطبيقات React جاهزة للإنتاج. نعرض كيفية دمج الخدمات الخلفية المعقدة بشكل مثالي مع تصميمات الواجهات الأمامية الجميلة."}
               </p>
             </div>
           </div>
@@ -101,7 +101,9 @@ export default function AboutPage() {
       <section className="py-20 bg-white dark:bg-black border-t border-gray-200 dark:border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-12">
-            Powered By Modern Tech
+            {language === "en"
+              ? "Powered By Modern Tech"
+              : "مدعوم بأحدث التقنيات"}
           </h2>
           <div className="flex flex-wrap justify-center gap-6">
             {[
@@ -127,16 +129,20 @@ export default function AboutPage() {
       <section className="py-20 bg-blue-600 dark:bg-blue-900 text-center text-white">
         <div className="max-w-4xl mx-auto px-4 animate-fade-in">
           <h2 className="text-3xl md:text-4xl font-bold mb-6">
-            Ready to work with us?
+            {language === "en"
+              ? "Ready to work with us?"
+              : "هل أنت مستعد للعمل معنا؟"}
           </h2>
           <p className="text-lg text-blue-100 mb-8">
-            Get in touch to learn how we can bring your next big idea to life.
+            {language === "en"
+              ? "Get in touch to learn how we can bring your next big idea to life."
+              : "تواصل معنا لمعرفة كيف يمكننا تحويل فكرتك الكبيرة القادمة إلى واقع."}
           </p>
           <Link
             href="/contact"
             className="inline-block bg-white text-blue-600 px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-100 transition-colors shadow-xl"
           >
-            Contact Us Today
+            {language === "en" ? "Contact Us Today" : "اتصل بنا اليوم"}
           </Link>
         </div>
       </section>

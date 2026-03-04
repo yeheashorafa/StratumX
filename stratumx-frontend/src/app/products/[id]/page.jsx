@@ -1,17 +1,21 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { fetchProductById } from "../../../api/products";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { use } from "react";
+import { useUIStore } from "@/store/uiStore";
 
-export default function ProductDetailsPage({ params }) {
+function ProductDetailsContent({ params }) {
   const unwrappedParams = use(params);
   const { id } = unwrappedParams;
+  const { language } = useUIStore();
 
   const searchParams = useSearchParams();
-  const lang = searchParams?.get("lang") || "en";
+  // We can still optionally consume lang params for backend calls, or use store language.
+  // Using store language ensures the UI is entirely synced.
+  const lang = language || searchParams?.get("lang") || "en";
 
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -61,26 +65,31 @@ export default function ProductDetailsPage({ params }) {
           />
         </svg>
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          Product Not Found
+          {language === "en" ? "Product Not Found" : "المنتج غير موجود"}
         </h1>
         <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">
-          We couldn't find the product you're looking for. It may have been
-          removed or is currently unavailable.
+          {language === "en"
+            ? "We couldn't find the product you're looking for. It may have been removed or is currently unavailable."
+            : "لم نتمكن من العثور على المنتج الذي تبحث عنه. إما أنه قد تم حذفه أو غير متوفر حالياً."}
         </p>
         <Link
           href="/products"
           className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-8 rounded-full transition-colors duration-300"
         >
-          Back to Products
+          {language === "en" ? "Back to Products" : "العودة إلى المنتجات"}
         </Link>
       </div>
     );
   }
 
-  const name = product.translations?.[0]?.name || "Premium Item";
+  const name =
+    product.translations?.[0]?.name ||
+    (language === "en" ? "Premium Item" : "عنصر متميز");
   const desc =
     product.translations?.[0]?.description ||
-    "Experience the pinnacle of quality and craftsmanship with this exclusive item.";
+    (language === "en"
+      ? "Experience the pinnacle of quality and craftsmanship with this exclusive item."
+      : "اختبر قمة الجودة والاحترافية مع هذا المنتج الحصري.");
   const price = product.price || 0;
   const image = product.images?.[0]?.url || null;
 
@@ -95,7 +104,7 @@ export default function ProductDetailsPage({ params }) {
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-black py-16">
+    <>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Breadcrumbs */}
         <nav className="flex mb-12 text-sm text-gray-500 dark:text-gray-400 font-medium animate-fade-in">
@@ -103,14 +112,14 @@ export default function ProductDetailsPage({ params }) {
             href="/"
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            Home
+            {language === "en" ? "Home" : "الرئيسية"}
           </Link>
           <span className="mx-3">/</span>
           <Link
             href="/products"
             className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            Products
+            {language === "en" ? "Products" : "المنتجات"}
           </Link>
           <span className="mx-3">/</span>
           <span className="text-gray-900 dark:text-white truncate">{name}</span>
@@ -166,7 +175,8 @@ export default function ProductDetailsPage({ params }) {
           {/* Product Info */}
           <div className="w-full lg:w-1/2 flex flex-col pt-4 animate-fade-in animation-delay-300">
             <div className="inline-block bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs font-bold px-3 py-1 rounded-full w-max mb-6 tracking-wide uppercase">
-              {product.Category?.translations?.[0]?.name || "New Arrival"}
+              {product.Category?.translations?.[0]?.name ||
+                (language === "en" ? "New Arrival" : "وصل حديثاً")}
             </div>
 
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 dark:text-white mb-4 leading-tight">
@@ -195,7 +205,9 @@ export default function ProductDetailsPage({ params }) {
                   className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  Add Premium Gift Wrapping (+$5.00)
+                  {language === "en"
+                    ? "Add Premium Gift Wrapping (+$5.00)"
+                    : "إضافة تغليف هدايا ممتاز (+$5.00)"}
                 </span>
               </label>
               <label className="flex items-center gap-3 cursor-pointer">
@@ -206,7 +218,9 @@ export default function ProductDetailsPage({ params }) {
                   className="w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span className="text-gray-700 dark:text-gray-300 font-medium">
-                  1-Year Extended Warranty (+$15.00)
+                  {language === "en"
+                    ? "1-Year Extended Warranty (+$15.00)"
+                    : "ضمان ممدد لمدة عام (+$15.00)"}
                 </span>
               </label>
             </div>
@@ -247,13 +261,15 @@ export default function ProductDetailsPage({ params }) {
                     d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
                   />
                 </svg>
-                Add to Cart
+                {language === "en" ? "Add to Cart" : "أضف إلى السلة"}
               </button>
             </div>
 
             <div className="mb-10 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center gap-3">
               <span className="text-sm font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-widest">
-                Guaranteed Safe Checkout
+                {language === "en"
+                  ? "Guaranteed Safe Checkout"
+                  : "دفع آمن ومضمون"}
               </span>
               <div className="flex gap-4 opacity-70">
                 {/* Simulating Payment Badges */}
@@ -273,7 +289,7 @@ export default function ProductDetailsPage({ params }) {
             <div className="space-y-4 pt-8 border-t border-gray-200 dark:border-gray-800">
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <svg
-                  className="w-5 h-5 mr-4 text-green-500 shrink-0"
+                  className="w-5 h-5 mx-4 text-green-500 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -285,11 +301,15 @@ export default function ProductDetailsPage({ params }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>Free Next-Day Delivery across major cities</span>
+                <span>
+                  {language === "en"
+                    ? "Free Next-Day Delivery across major cities"
+                    : "توصيل مجاني في اليوم التالي عبر المدن الرئيسية"}
+                </span>
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <svg
-                  className="w-5 h-5 mr-4 text-green-500 shrink-0"
+                  className="w-5 h-5 mx-4 text-green-500 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -301,11 +321,15 @@ export default function ProductDetailsPage({ params }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>30-Day Money-Back Guarantee</span>
+                <span>
+                  {language === "en"
+                    ? "30-Day Money-Back Guarantee"
+                    : "ضمان استرداد الأموال لمدة 30 يوماً"}
+                </span>
               </div>
               <div className="flex items-center text-gray-600 dark:text-gray-400">
                 <svg
-                  className="w-5 h-5 mr-4 text-green-500 shrink-0"
+                  className="w-5 h-5 mx-4 text-green-500 shrink-0"
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -317,12 +341,32 @@ export default function ProductDetailsPage({ params }) {
                     d="M5 13l4 4L19 7"
                   />
                 </svg>
-                <span>Secure SSL encrypted checkout</span>
+                <span>
+                  {language === "en"
+                    ? "Secure SSL encrypted checkout"
+                    : "عملية دفع آمنة ومشفرة بتقنية SSL"}
+                </span>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+export default function ProductDetailsPage({ params }) {
+  return (
+    <div className="min-h-screen bg-white dark:bg-black py-16">
+      <Suspense
+        fallback={
+          <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600"></div>
+          </div>
+        }
+      >
+        <ProductDetailsContent params={params} />
+      </Suspense>
     </div>
   );
 }

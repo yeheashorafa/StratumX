@@ -4,11 +4,13 @@ import { useEffect, useState } from "react";
 import { fetchProducts } from "../api/products";
 import ProductCard from "../components/ProductCard";
 import { useCartStore } from "@/store/cartStore";
+import { useUIStore } from "@/store/uiStore";
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false);
   const [featuredProducts, setFeaturedProducts] = useState([]);
   const addItemToCart = useCartStore((state) => state.addItem);
+  const { language } = useUIStore();
 
   useEffect(() => {
     setMounted(true);
@@ -42,27 +44,36 @@ export default function HomePage() {
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32 flex flex-col items-center text-center animate-fade-in z-10">
           <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 leading-tight drop-shadow-lg">
-            Elevate Your Business with <br className="hidden md:block" />
+            {language === "en" ? (
+              <>
+                Elevate Your Business with <br className="hidden md:block" />
+              </>
+            ) : (
+              <>
+                ارتقِ بأعمالك مع <br className="hidden md:block" />
+              </>
+            )}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-300">
               StratumX
             </span>
           </h1>
           <p className="text-lg md:text-xl max-w-2xl text-blue-100 mb-10 drop-shadow-md">
-            The ultimate fullstack showcase combining a modern portfolio,
-            dynamic e-commerce, and a powerful admin dashboard.
+            {language === "en"
+              ? "The ultimate fullstack showcase combining a modern portfolio, dynamic e-commerce, and a powerful admin dashboard."
+              : "المنصة المتكاملة التي تجمع بين واجهة عرض حديثة، متجر إلكتروني ديناميكي، ولوحة تحكم قوية."}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Link
               href="/store"
               className="bg-white text-blue-700 hover:bg-gray-50 px-8 py-3 rounded-full font-bold text-lg shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              Explore Store
+              {language === "en" ? "Explore Store" : "اكتشف المتجر"}
             </Link>
             <Link
               href="/services"
               className="bg-blue-800/50 backdrop-blur-md border border-blue-400/30 text-white hover:bg-blue-700/50 px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
             >
-              Our Services
+              {language === "en" ? "Our Services" : "خدماتنا"}
             </Link>
           </div>
         </div>
@@ -72,18 +83,18 @@ export default function HomePage() {
       <section className="py-20 bg-white dark:bg-black">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-6">
-            Who We Are
+            {language === "en" ? "Who We Are" : "من نحن"}
           </h2>
           <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-            We deliver integrated business solutions combining a comprehensive
-            corporate showcase and a seamless digital storefront, equipped with
-            an intuitive management dashboard.
+            {language === "en"
+              ? "We deliver integrated business solutions combining a comprehensive corporate showcase and a seamless digital storefront, equipped with an intuitive management dashboard."
+              : "نقدم حلول أعمال متكاملة تجمع بين منصة عرض شاملة للشركات ومتجر رقمي سلس، مزودة بلوحة تحكم إدارية سهلة الاستخدام."}
           </p>
           <Link
             href="/about"
             className="group inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
           >
-            Learn More
+            {language === "en" ? "Learn More" : "اكتشف المزيد"}
             <svg
               className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform"
               fill="none"
@@ -106,10 +117,12 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Core Services
+              {language === "en" ? "Core Services" : "خدماتنا الأساسية"}
             </h2>
             <p className="text-gray-500 dark:text-gray-400">
-              Discover what we can do for your business.
+              {language === "en"
+                ? "Discover what we can do for your business."
+                : "اكتشف ما يمكننا تقديمه لأعمالك."}
             </p>
           </div>
 
@@ -135,17 +148,20 @@ export default function HomePage() {
                   </svg>
                 </div>
                 <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
-                  Premium Service {item}
+                  {language === "en"
+                    ? `Premium Service ${item}`
+                    : `خدمة متميزة ${item}`}
                 </h3>
                 <p className="text-gray-600 dark:text-gray-300 mb-6 line-clamp-2">
-                  High-quality, scalable solutions tailored to meet the highest
-                  industry standards.
+                  {language === "en"
+                    ? "High-quality, scalable solutions tailored to meet the highest industry standards."
+                    : "حلول عالية الجودة وقابلة للتطوير مصممة لتلبية أعلى معايير الصناعة."}
                 </p>
                 <Link
                   href="/services"
                   className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
                 >
-                  Explore Details
+                  {language === "en" ? "Explore Details" : "تفاصيل الخدمة"}
                 </Link>
               </div>
             ))}
@@ -159,17 +175,19 @@ export default function HomePage() {
           <div className="flex justify-between items-end mb-12">
             <div>
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-                Featured Products
+                {language === "en" ? "Featured Products" : "منتجات مميزة"}
               </h2>
               <p className="text-gray-500 dark:text-gray-400">
-                Top picks from our store.
+                {language === "en"
+                  ? "Top picks from our store."
+                  : "أفضل الاختيارات من متجرنا."}
               </p>
             </div>
             <Link
               href="/store"
               className="hidden sm:inline-flex text-blue-600 dark:text-blue-400 font-medium hover:underline"
             >
-              View All
+              {language === "en" ? "View All" : "عرض الكل"}
             </Link>
           </div>
 
@@ -197,7 +215,9 @@ export default function HomePage() {
               ))
             ) : (
               <div className="col-span-full py-12 text-center text-gray-500">
-                Loading featured products...
+                {language === "en"
+                  ? "Loading featured products..."
+                  : "جاري تحميل المنتجات..."}
               </div>
             )}
           </div>
@@ -206,7 +226,7 @@ export default function HomePage() {
               href="/store"
               className="text-blue-600 dark:text-blue-400 font-medium hover:underline"
             >
-              View All Products
+              {language === "en" ? "View All Products" : "عرض كل المنتجات"}
             </Link>
           </div>
         </div>

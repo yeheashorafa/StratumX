@@ -1,7 +1,9 @@
 "use client";
 import Link from "next/link";
+import { useUIStore } from "@/store/uiStore";
 
 export default function ProductCard({ product, onAddToCart }) {
+  const { language } = useUIStore();
   const name = product.translations?.[0]?.name || "Featured Product";
   const price = product.price || 0;
   const image = product.images?.[0]?.url || null;
@@ -48,7 +50,9 @@ export default function ProductCard({ product, onAddToCart }) {
         </Link>
         <p className="text-gray-500 dark:text-gray-400 text-sm mb-6 grow line-clamp-2">
           {product.translations?.[0]?.description ||
-            "High-quality exclusive item crafted specifically for our store. Grab yours today."}
+            (language === "en"
+              ? "High-quality exclusive item crafted specifically for our store. Grab yours today."
+              : "قطعة حصرية عالية الجودة تم تصميمها خصيصاً لمتجرنا. احصل عليها اليوم.")}
         </p>
 
         <button
@@ -68,7 +72,7 @@ export default function ProductCard({ product, onAddToCart }) {
               d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
             />
           </svg>
-          Add to Cart
+          {language === "en" ? "Add to Cart" : "أضف إلى السلة"}
         </button>
       </div>
     </div>
