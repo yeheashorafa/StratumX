@@ -2,7 +2,35 @@ import * as productService from "./product.Service.js";
 
 export const create = async (req, res, next) => {
   try {
-    const product = await productService.createProduct(req.body);
+    const data = { ...req.body };
+
+    // Parse translations if sent as string via FormData
+    if (typeof data.translations === "string") {
+      try {
+        data.translations = JSON.parse(data.translations);
+      } catch (e) {
+        console.error("Failed to parse translations array:", e);
+      }
+    }
+
+    // Handle uploaded file
+    if (req.file) {
+      data.images = [
+        {
+          url: `/uploads/${req.file.filename}`,
+          altText: data.name || "Product Image",
+          isPrimary: true,
+        },
+      ];
+    }
+
+    // Convert stringified numbers
+    if (data.businessId) data.businessId = Number(data.businessId);
+    if (data.categoryId) data.categoryId = Number(data.categoryId);
+    if (data.price) data.price = Number(data.price);
+    if (data.stock) data.stock = Number(data.stock);
+
+    const product = await productService.createProduct(data);
     res.status(201).json(product);
   } catch (err) {
     next(err);
@@ -42,9 +70,37 @@ export const getOne = async (req, res, next) => {
 
 export const update = async (req, res, next) => {
   try {
+    const data = { ...req.body };
+
+    // Parse translations if sent as string via FormData
+    if (typeof data.translations === "string") {
+      try {
+        data.translations = JSON.parse(data.translations);
+      } catch (e) {
+        console.error("Failed to parse translations array:", e);
+      }
+    }
+
+    // Handle uploaded file
+    if (req.file) {
+      data.images = [
+        {
+          url: `/uploads/${req.file.filename}`,
+          altText: data.name || "Product Image",
+          isPrimary: true,
+        },
+      ];
+    }
+
+    // Convert stringified numbers
+    if (data.businessId) data.businessId = Number(data.businessId);
+    if (data.categoryId) data.categoryId = Number(data.categoryId);
+    if (data.price) data.price = Number(data.price);
+    if (data.stock) data.stock = Number(data.stock);
+
     const product = await productService.updateProduct(
       Number(req.params.id),
-      req.body,
+      data,
     );
     res.json(product);
   } catch (err) {

@@ -91,10 +91,18 @@ export const getProductById = async (id, lang = "en") => {
 export const updateProduct = async (id, data) => {
   const { translations, images, ...productData } = data;
 
-  // Update flat fields
+  // Update flat fields and replace images if provided
   const updated = await prisma.product.update({
     where: { id },
-    data: { ...productData },
+    data: {
+      ...productData,
+      images: images
+        ? {
+            deleteMany: {},
+            create: images,
+          }
+        : undefined,
+    },
     include: { translations: true, images: true },
   });
 

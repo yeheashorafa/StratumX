@@ -13,7 +13,7 @@ export const createPage = async (data) => {
 
 export const getPages = async (businessId, lang) => {
   return prisma.page.findMany({
-    where: { businessId, isDeleted: false, isActive: true },
+    where: { businessId, isDeleted: false, isPublished: true },
     include: { translations: { where: { lang } } },
   });
 };

@@ -19,8 +19,10 @@ export default function AdminProductsPage() {
     name: "",
     price: "",
     stock: "",
+    sku: "",
     categoryId: 1, // Default fallback
     description: "",
+    imageFile: null,
   });
 
   const loadData = async () => {
@@ -51,8 +53,10 @@ export default function AdminProductsPage() {
       name: "",
       price: "",
       stock: "",
+      sku: "",
       categoryId: 1,
       description: "",
+      imageFile: null,
     });
     setIsModalOpen(true);
   };
@@ -63,8 +67,10 @@ export default function AdminProductsPage() {
       name: product.translations?.[0]?.name || "",
       price: product.price || 0,
       stock: product.stock || 0,
+      sku: product.sku || "",
       categoryId: product.categoryId || 1,
       description: product.translations?.[0]?.description || "",
+      imageFile: null,
     });
     setIsModalOpen(true);
   };
@@ -83,19 +89,25 @@ export default function AdminProductsPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const payload = {
-        businessId: 1, // Assumption for single-tenant showcase
-        categoryId: Number(formData.categoryId),
-        price: Number(formData.price),
-        stock: Number(formData.stock),
-        translations: [
-          {
-            lang: "en",
-            name: formData.name,
-            description: formData.description,
-          },
-        ],
-      };
+      const payload = new FormData();
+      payload.append("businessId", 1); // Assumption for single-tenant showcase
+      payload.append("categoryId", formData.categoryId);
+      payload.append("price", formData.price);
+      payload.append("stock", formData.stock);
+      payload.append("sku", formData.sku);
+
+      const translations = [
+        {
+          lang: "en",
+          name: formData.name,
+          description: formData.description,
+        },
+      ];
+      payload.append("translations", JSON.stringify(translations));
+
+      if (formData.imageFile) {
+        payload.append("image", formData.imageFile);
+      }
 
       if (editingId) {
         await updateProduct(editingId, payload);
@@ -325,6 +337,20 @@ export default function AdminProductsPage() {
               </div>
               <div>
                 <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  SKU
+                </label>
+                <input
+                  required
+                  value={formData.sku}
+                  onChange={(e) =>
+                    setFormData({ ...formData, sku: e.target.value })
+                  }
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="e.g. PRD-001"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
                   Description
                 </label>
                 <textarea
@@ -335,6 +361,19 @@ export default function AdminProductsPage() {
                   }
                   className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
                   placeholder="Short product description..."
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-1">
+                  Product Image
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) =>
+                    setFormData({ ...formData, imageFile: e.target.files[0] })
+                  }
+                  className="w-full px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 dark:file:bg-blue-900/50 dark:file:text-blue-300"
                 />
               </div>
               <button

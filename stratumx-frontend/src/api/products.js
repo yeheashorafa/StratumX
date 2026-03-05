@@ -44,20 +44,32 @@ const getAuthHeaders = () => {
 };
 
 export const createProduct = async (productData) => {
+  const isFormData = productData instanceof FormData;
+  const headers = getAuthHeaders();
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(`/api/products`, {
     method: "POST",
-    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-    body: JSON.stringify(productData),
+    headers,
+    body: isFormData ? productData : JSON.stringify(productData),
   });
   if (!res.ok) throw new Error("Failed to create product");
   return res.json();
 };
 
 export const updateProduct = async (id, productData) => {
+  const isFormData = productData instanceof FormData;
+  const headers = getAuthHeaders();
+  if (!isFormData) {
+    headers["Content-Type"] = "application/json";
+  }
+
   const res = await fetch(`/api/products/${id}`, {
     method: "PUT",
-    headers: { "Content-Type": "application/json", ...getAuthHeaders() },
-    body: JSON.stringify(productData),
+    headers,
+    body: isFormData ? productData : JSON.stringify(productData),
   });
   if (!res.ok) throw new Error("Failed to update product");
   return res.json();
