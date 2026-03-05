@@ -80,35 +80,63 @@ export default function HomePage() {
       </section>
 
       {/* About Preview */}
-      <section className="py-20 bg-white dark:bg-black">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-6">
-            {language === "en" ? "Who We Are" : "من نحن"}
-          </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-300 max-w-3xl mx-auto mb-8 leading-relaxed">
-            {language === "en"
-              ? "We deliver integrated business solutions combining a comprehensive corporate showcase and a seamless digital storefront, equipped with an intuitive management dashboard."
-              : "نقدم حلول أعمال متكاملة تجمع بين منصة عرض شاملة للشركات ومتجر رقمي سلس، مزودة بلوحة تحكم إدارية سهلة الاستخدام."}
-          </p>
-          <Link
-            href="/about"
-            className="group inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
-          >
-            {language === "en" ? "Learn More" : "اكتشف المزيد"}
-            <svg
-              className="ml-2 w-5 h-5 transform group-hover:translate-x-1 transition-transform"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
+      <section className="py-20 bg-white dark:bg-black overflow-hidden relative">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-12">
+            {/* Text Content */}
+            <div
+              className={`w-full md:w-1/2 ${language === "ar" ? "text-center md:text-right" : "text-center md:text-left"} z-10`}
+              dir={language === "ar" ? "rtl" : "ltr"}
             >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M14 5l7 7m0 0l-7 7m7-7H3"
-              />
-            </svg>
-          </Link>
+              <h2 className="text-3xl font-bold bg-clip-text text-transparent bg-linear-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400 mb-6">
+                {language === "en" ? "Who We Are" : "من نحن"}
+              </h2>
+              <p className="text-lg text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
+                {language === "en"
+                  ? "We deliver integrated business solutions combining a comprehensive corporate showcase and a seamless digital storefront, equipped with an intuitive management dashboard."
+                  : "نقدم حلول أعمال متكاملة تجمع بين منصة عرض شاملة للشركات ومتجر رقمي سلس، مزودة بلوحة تحكم إدارية سهلة الاستخدام."}
+              </p>
+              <Link
+                href="/about"
+                className="group inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+                dir={language === "ar" ? "rtl" : "ltr"}
+              >
+                {language === "en" ? "Learn More" : "اكتشف المزيد"}
+                <svg
+                  className={`w-5 h-5 transform transition-transform ${language === "en" ? "ml-2 group-hover:translate-x-1" : "mr-2 group-hover:-translate-x-1"}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d={
+                      language === "en"
+                        ? "M14 5l7 7m0 0l-7 7m7-7H3"
+                        : "M10 19l-7-7m0 0l7-7m-7 7h18"
+                    }
+                  />
+                </svg>
+              </Link>
+            </div>
+
+            {/* Image Content - Hidden on small screens */}
+            <div className="w-full md:w-1/2 hidden md:flex justify-center relative">
+              <div className="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-full filter blur-3xl transform scale-150"></div>
+              <div className="relative z-10 w-full max-w-md rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 transform hover:scale-[1.02] transition-transform duration-500">
+                <img
+                  src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
+                  alt={
+                    language === "en" ? "About StratumX" : "عن منصة StratumX"
+                  }
+                  className="w-full h-[300px] object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent pointer-events-none"></div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
