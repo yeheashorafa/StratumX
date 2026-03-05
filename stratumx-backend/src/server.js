@@ -13,7 +13,7 @@ const startServer = async () => {
       console.log(`🚀 StratumX Backend running on port ${PORT}`);
     });
   } catch (error) {
-    console.error("❌ Failed to connect to Redis", error);
+    console.error("❌ Failed to connect to Redis " , error);
     process.exit(1);
   }
 };
