@@ -2,9 +2,20 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import app from "./app.js";
+import { connectRedis } from "./redis/redisClient.js";
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`🚀 StratumX Backend running on port ${PORT}`);
-});
+const startServer = async () => {
+  try {
+    await connectRedis();
+    app.listen(PORT, () => {
+      console.log(`🚀 StratumX Backend running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error("❌ Failed to connect to Redis", error);
+    process.exit(1);
+  }
+};
+
+startServer();
