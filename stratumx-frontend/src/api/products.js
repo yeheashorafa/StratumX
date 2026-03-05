@@ -1,5 +1,5 @@
-// api/products.js
-export const fetchProducts = async (
+// api/product.js
+export const fetchproduct = async (
   businessId = 1,
   lang = "en",
   page = 1,
@@ -13,7 +13,7 @@ export const fetchProducts = async (
   if (categoryId) params.append("categoryId", categoryId);
   if (search) params.append("search", search);
 
-  const res = await fetch(`/api/products?${params.toString()}`);
+  const res = await fetch(`/api/product?${params.toString()}`);
   return res.json();
 };
 
@@ -23,7 +23,7 @@ export const fetchProductBySlug = async (businessId = 1, slug, lang = "en") => {
   if (slug) params.append("slug", slug);
   if (lang) params.append("lang", lang);
 
-  const res = await fetch(`/api/products/${slug}?${params.toString()}`);
+  const res = await fetch(`/api/product/${slug}?${params.toString()}`);
   if (!res.ok) throw new Error("Product not found");
   return res.json();
 };
@@ -32,7 +32,7 @@ export const fetchProductById = async (id, lang = "en") => {
   const params = new URLSearchParams();
   if (lang) params.append("lang", lang);
 
-  const res = await fetch(`/api/products/${id}?${params.toString()}`);
+  const res = await fetch(`/api/product/${id}?${params.toString()}`);
   if (!res.ok) throw new Error("Product not found");
   return res.json();
 };
@@ -44,7 +44,7 @@ const getAuthHeaders = () => {
 };
 
 export const createProduct = async (productData) => {
-  const res = await fetch(`/api/products`, {
+  const res = await fetch(`/api/product`, {
     method: "POST",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(productData),
@@ -54,7 +54,7 @@ export const createProduct = async (productData) => {
 };
 
 export const updateProduct = async (id, productData) => {
-  const res = await fetch(`/api/products/${id}`, {
+  const res = await fetch(`/api/product/${id}`, {
     method: "PUT",
     headers: { "Content-Type": "application/json", ...getAuthHeaders() },
     body: JSON.stringify(productData),
@@ -64,7 +64,7 @@ export const updateProduct = async (id, productData) => {
 };
 
 export const deleteProduct = async (id) => {
-  const res = await fetch(`/api/products/${id}`, {
+  const res = await fetch(`/api/product/${id}`, {
     method: "DELETE",
     headers: { ...getAuthHeaders() },
   });
