@@ -22,6 +22,9 @@ import { apiLimiter } from "./middlewares/rateLimit.js";
 
 const app = express();
 
+// Trust proxy - required when behind Render/load balancer (fixes express-rate-limit X-Forwarded-For error)
+app.set("trust proxy", 1);
+
 // Middleware
 app.use(morgan("dev")); // Log everything first
 app.use(cors());
