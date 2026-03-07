@@ -75,17 +75,36 @@ export const loginUser = async (email, password) => {
   };
 };
 
-export const getAllUsers = async (businessId) => {
-  return prisma.user.findMany({
-    where: { businessId, isActive: true },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: { select: { name: true } },
-      createdAt: true,
+export const getAllUsers = async (businessId, page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  const where = { businessId, isActive: true };
+
+  const [users, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: { select: { name: true } },
+        createdAt: true,
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  return {
+    data: users,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-  });
+  };
 };
 
 export const updateUser = async (id, data) => {

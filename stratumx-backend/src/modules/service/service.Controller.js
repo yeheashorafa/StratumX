@@ -12,16 +12,20 @@ export const create = async (req, res, next) => {
 
 export const getAll = async (req, res, next) => {
   try {
-    const { businessId, lang } = req.query;
+    const { businessId, lang, page, limit } = req.query;
     const bId = Number(businessId) || req.user.businessId;
     const language = lang || "en";
+    const p = Number(page) || 1;
+    const l = Number(limit) || 10;
 
-    const services = await serviceService.getServices(
+    const result = await serviceService.getServices(
       bId,
       language,
       true, // isAdmin
+      p,
+      l,
     );
-    res.json(services);
+    res.json(result);
   } catch (err) {
     next(err);
   }

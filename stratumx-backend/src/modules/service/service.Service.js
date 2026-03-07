@@ -11,17 +11,40 @@ export const createService = async (data) => {
   });
 };
 
-export const getServices = async (businessId, lang, isAdmin = false) => {
+export const getServices = async (
+  businessId,
+  lang,
+  isAdmin = false,
+  page = 1,
+  limit = 10,
+) => {
+  const skip = (page - 1) * limit;
   const where = { businessId };
   if (!isAdmin) {
     where.isDeleted = false;
     where.isActive = true;
   }
 
-  return prisma.service.findMany({
-    where,
-    include: { translations: { where: { lang } } },
-  });
+  const [services, total] = await Promise.all([
+    prisma.service.findMany({
+      where,
+      skip,
+      take: limit,
+      include: { translations: { where: { lang } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.service.count({ where }),
+  ]);
+
+  return {
+    data: services,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const updateService = async (id, data) => {

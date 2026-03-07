@@ -11,17 +11,40 @@ export const createPage = async (data) => {
   });
 };
 
-export const getPages = async (businessId, lang, isAdmin = false) => {
+export const getPages = async (
+  businessId,
+  lang,
+  isAdmin = false,
+  page = 1,
+  limit = 10,
+) => {
+  const skip = (page - 1) * limit;
   const where = { businessId };
   if (!isAdmin) {
     where.isDeleted = false;
     where.isPublished = true;
   }
 
-  return prisma.page.findMany({
-    where,
-    include: { translations: { where: { lang } } },
-  });
+  const [pages, total] = await Promise.all([
+    prisma.page.findMany({
+      where,
+      skip,
+      take: limit,
+      include: { translations: { where: { lang } } },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.page.count({ where }),
+  ]);
+
+  return {
+    data: pages,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
 
 export const updatePage = async (id, data) => {

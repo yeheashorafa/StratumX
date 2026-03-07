@@ -12,12 +12,17 @@ export const create = async (req, res, next) => {
 export const getAll = async (req, res, next) => {
   try {
     const businessId = Number(req.query.businessId) || req.user.businessId;
-    const pages = await pageService.getPages(
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
+    const result = await pageService.getPages(
       businessId,
       req.query.lang,
       true, // isAdmin
+      page,
+      limit,
     );
-    res.json(pages);
+    res.json(result);
   } catch (err) {
     next(err);
   }

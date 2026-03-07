@@ -12,7 +12,8 @@
     "build": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "seed": "node seedData.js"
+    "seed": "node seedData.js",
+    "supplement": "node supplementData.js"
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",
