@@ -1,4 +1,9 @@
-import { PrismaClient } from "@prisma/client";
+import {
+  PrismaClient,
+  OrderStatus,
+  PaymentStatus,
+  PaymentMethod,
+} from "@prisma/client";
 import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
@@ -20,16 +25,18 @@ async function main() {
     console.log("Created default Business.");
   }
 
-  // Clear existing items for clean seeding
+  // Clear existing items for clean seeding (order matters for FK constraints)
   await prisma.cartItem.deleteMany({});
   await prisma.cart.deleteMany({});
   await prisma.orderItem.deleteMany({});
   await prisma.order.deleteMany({});
   await prisma.productImage.deleteMany({});
   await prisma.productTranslation.deleteMany({});
+  await prisma.productVariant.deleteMany({});
   await prisma.product.deleteMany({});
   await prisma.categoryTranslation.deleteMany({});
   await prisma.category.deleteMany({});
+  await prisma.coupon.deleteMany({});
   await prisma.user.deleteMany({});
   await prisma.role.deleteMany({});
 
@@ -205,7 +212,35 @@ async function main() {
     });
   }
 
-  console.log("Seeding complete with beautiful online images!");
+  // 6. Create a sample Coupon
+  await prisma.coupon.create({
+    data: {
+      businessId: 1,
+      code: "WELCOME10",
+      discountPercent: 10,
+      isActive: true,
+    },
+  });
+  console.log("Created sample coupon: WELCOME10 (10% off)");
+
+  // 7. Ensure Settings exist
+  const existingSettings = await prisma.settings.findUnique({
+    where: { businessId: 1 },
+  });
+  if (!existingSettings) {
+    await prisma.settings.create({
+      data: {
+        businessId: 1,
+        seoTitle: "StratumX - Premium Tech Store",
+        seoDescription: "Shop the latest and greatest tech products.",
+        currency: "USD",
+        theme: "default",
+      },
+    });
+    console.log("Created default Settings.");
+  }
+
+  console.log("✅ Seeding complete!");
 }
 
 main()

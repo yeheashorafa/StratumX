@@ -1,6 +1,15 @@
 import prisma from "../../config/db.js";
+import { OrderStatus, PaymentStatus, PaymentMethod } from "@prisma/client";
 
-export const checkoutGuest = async (items, businessId = 1) => {
+export const checkoutGuest = async (
+  items,
+  businessId = 1,
+  {
+    shippingAddress = null,
+    billingAddress = null,
+    paymentMethod = PaymentMethod.CASH_ON_DELIVERY,
+  } = {},
+) => {
   if (!items || items.length === 0) {
     throw new Error("Cart is empty");
   }
@@ -10,7 +19,6 @@ export const checkoutGuest = async (items, businessId = 1) => {
     const orderItemsData = [];
 
     for (const item of items) {
-      // Validate Product
       const product = await tx.product.findUnique({
         where: { id: item.productId },
         include: { translations: true, images: true },
@@ -39,14 +47,12 @@ export const checkoutGuest = async (items, businessId = 1) => {
       });
     }
 
-    // Since it's a guest checkout, we need to create a dummy user or assign to a generic "Guest" user.
-    // Let's see if a Guest user exists for this business.
+    // Find or create guest user for this business
     let guestUser = await tx.user.findFirst({
       where: { email: "guest@stratumx.local", businessId },
     });
 
     if (!guestUser) {
-      // Get a customer role
       const customerRole = await tx.role.findFirst({
         where: { name: "CUSTOMER", businessId },
       });
@@ -62,7 +68,6 @@ export const checkoutGuest = async (items, businessId = 1) => {
       });
     }
 
-    // Create Order
     const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
 
     const order = await tx.order.create({
@@ -71,6 +76,13 @@ export const checkoutGuest = async (items, businessId = 1) => {
         businessId,
         totalAmount: total,
         orderNumber,
+        status: OrderStatus.PENDING,
+        paymentStatus: PaymentStatus.PENDING,
+        paymentMethod,
+        shippingAddress: shippingAddress
+          ? JSON.stringify(shippingAddress)
+          : null,
+        billingAddress: billingAddress ? JSON.stringify(billingAddress) : null,
         items: { create: orderItemsData },
       },
       include: { items: true },
@@ -90,9 +102,7 @@ export const getUserOrders = async (userId) => {
 
 export const getAllOrders = async ({ businessId, page = 1, limit = 10 }) => {
   const skip = (page - 1) * limit;
-  const whereClause = {
-    businessId,
-  };
+  const whereClause = { businessId };
 
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
@@ -124,9 +134,38 @@ export const getOrderById = async (id) => {
 };
 
 export const updateOrderStatus = async (id, status) => {
+  // Accept both string and enum values for backwards compat
+  const validStatuses = Object.values(OrderStatus);
+  const normalizedStatus = status?.toUpperCase();
+
+  if (!validStatuses.includes(normalizedStatus)) {
+    throw new Error(
+      `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
+    );
+  }
+
   return prisma.order.update({
     where: { id },
-    data: { status },
+    data: { status: normalizedStatus },
+  });
+};
+
+export const updatePaymentStatus = async (id, paymentStatus, transactionId) => {
+  const validStatuses = Object.values(PaymentStatus);
+  const normalizedStatus = paymentStatus?.toUpperCase();
+
+  if (!validStatuses.includes(normalizedStatus)) {
+    throw new Error(
+      `Invalid payment status. Must be one of: ${validStatuses.join(", ")}`,
+    );
+  }
+
+  return prisma.order.update({
+    where: { id },
+    data: {
+      paymentStatus: normalizedStatus,
+      ...(transactionId && { transactionId }),
+    },
   });
 };
 

@@ -1,5 +1,6 @@
 import Stripe from "stripe";
 import prisma from "../../config/db.js";
+import { OrderStatus, PaymentStatus, PaymentMethod } from "@prisma/client";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
@@ -109,7 +110,10 @@ export const handleWebhook = async (rawBody, signature) => {
           businessId: bId,
           orderNumber,
           totalAmount,
-          status: "paid",
+          status: OrderStatus.PAID,
+          paymentStatus: PaymentStatus.COMPLETED,
+          paymentMethod: PaymentMethod.STRIPE,
+          transactionId: session.id,
           items: { create: items },
         },
         include: { items: true },
