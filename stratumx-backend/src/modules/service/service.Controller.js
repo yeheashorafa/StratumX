@@ -13,14 +13,13 @@ export const create = async (req, res, next) => {
 export const getAll = async (req, res, next) => {
   try {
     const { businessId, lang } = req.query;
-    if (!businessId || !lang) {
-      return res
-        .status(400)
-        .json({ error: "businessId and lang are required" });
-    }
+    const bId = Number(businessId) || req.user.businessId;
+    const language = lang || "en";
+
     const services = await serviceService.getServices(
-      parseInt(businessId),
-      lang,
+      bId,
+      language,
+      true, // isAdmin
     );
     res.json(services);
   } catch (err) {

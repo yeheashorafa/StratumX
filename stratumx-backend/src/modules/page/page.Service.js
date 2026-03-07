@@ -11,19 +11,46 @@ export const createPage = async (data) => {
   });
 };
 
-export const getPages = async (businessId, lang) => {
+export const getPages = async (businessId, lang, isAdmin = false) => {
+  const where = { businessId };
+  if (!isAdmin) {
+    where.isDeleted = false;
+    where.isPublished = true;
+  }
+
   return prisma.page.findMany({
-    where: { businessId, isDeleted: false, isPublished: true },
+    where,
     include: { translations: { where: { lang } } },
   });
 };
 
 export const updatePage = async (id, data) => {
   const { translations, ...pageData } = data;
+
   return prisma.page.update({
     where: { id },
     data: {
       ...pageData,
+      translations: translations
+        ? {
+            upsert: translations.map((t) => ({
+              where: { pageId_lang: { pageId: id, lang: t.lang } },
+              update: {
+                title: t.title,
+                body: t.body,
+                metaTitle: t.metaTitle,
+                metaDescription: t.metaDescription,
+              },
+              create: {
+                lang: t.lang,
+                title: t.title,
+                body: t.body,
+                metaTitle: t.metaTitle,
+                metaDescription: t.metaDescription,
+              },
+            })),
+          }
+        : undefined,
     },
     include: { translations: true },
   });
