@@ -17,21 +17,21 @@ export default function AdminLayout({ children }) {
       const userStr = localStorage.getItem("admin_user");
 
       if (!token || !userStr) {
-        if (pathname !== "/dashboard/login") {
-          router.replace("/dashboard/login");
+        if (pathname !== "/login") {
+          router.replace("/login");
         }
       } else {
         try {
           setAdminUser(JSON.parse(userStr));
           setIsAuthenticated(true);
-          if (pathname === "/dashboard/login") {
+          if (pathname === "/login") {
             router.replace("/dashboard");
           }
         } catch (e) {
           localStorage.removeItem("admin_token");
           localStorage.removeItem("admin_user");
-          if (pathname !== "/dashboard/login") {
-            router.replace("/dashboard/login");
+          if (pathname !== "/login") {
+            router.replace("/login");
           }
         }
       }
@@ -44,7 +44,7 @@ export default function AdminLayout({ children }) {
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_user");
     setIsAuthenticated(false);
-    router.replace("/dashboard/login");
+    router.replace("/login");
   };
 
   if (loading) {
@@ -56,7 +56,7 @@ export default function AdminLayout({ children }) {
   }
 
   // Prevent sidebar rendering / content hiding during login
-  const isLoginPage = pathname === "/dashboard/login";
+  const isLoginPage = pathname === "/login";
   if (!isAuthenticated && !isLoginPage) return null;
 
   if (isLoginPage) {
