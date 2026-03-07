@@ -1,10 +1,7 @@
-import {
-  PrismaClient,
-  OrderStatus,
-  PaymentStatus,
-  PaymentMethod,
-} from "@prisma/client";
+import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
+import pkg from "@prisma/client";
+const { OrderStatus, PaymentStatus, PaymentMethod } = pkg;
 
 const prisma = new PrismaClient();
 
@@ -75,8 +72,6 @@ async function main() {
       },
     });
     console.log(`Created Admin User: ${adminEmail} / password123`);
-  } else {
-    console.log(`Admin User ${adminEmail} already exists.`);
   }
 
   // 4. Create Categories
@@ -112,11 +107,9 @@ async function main() {
       stock: 50,
       sku: "PROD-ELEC-001",
       enName: "Premium Wireless Headphones",
-      enDesc:
-        "Experience industry-leading noise cancellation and premium sound quality with these stylish over-ear headphones.",
+      enDesc: "High quality wireless headphones.",
       arName: "سماعات لاسلكية فاخرة",
-      arDesc:
-        "استمتع بعزل الضوضاء الرائد في الصناعة وجودة الصوت الممتازة مع هذه السماعات المذهلة.",
+      arDesc: "سماعات لاسلكية بجودة عالية.",
       imageUrl:
         "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=1770&auto=format&fit=crop",
     },
@@ -125,69 +118,12 @@ async function main() {
       price: 1299.0,
       stock: 15,
       sku: "PROD-ELEC-002",
-      enName: "Ultra-Slim Creator Laptop",
-      enDesc:
-        "A powerful machine designed for content creators, featuring a stunning 4K OLED display and fast processing.",
+      enName: "Ultra-Slim Laptop",
+      enDesc: "Powerful slim laptop.",
       arName: "حاسوب محمول فائق النحافة",
-      arDesc: "جهاز قوي مصمم لصناع المحتوى، يتميز بشاشة مبهرة ومعالجة سريعة.",
+      arDesc: "حاسوب محمول قوي ونحيف.",
       imageUrl:
         "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?q=80&w=1771&auto=format&fit=crop",
-    },
-    {
-      categoryId: cat2.id,
-      price: 45.0,
-      stock: 100,
-      sku: "PROD-ACC-001",
-      enName: "Leather Smartwatch Band",
-      enDesc:
-        "Upgrade your look with this premium genuine leather smartwatch band. Comfortable and highly durable.",
-      arName: "سوار ساعة ذكية من الجلد",
-      arDesc:
-        "ارتق بمظهرك مع سوار الساعة الذكية المصنوع من الجلد الأصلي الفاخر.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1508685096489-7aacd43bd3b1?q=80&w=1227&auto=format&fit=crop",
-    },
-    {
-      categoryId: cat2.id,
-      price: 120.0,
-      stock: 200,
-      sku: "PROD-ACC-002",
-      enName: "Minimalist Desk Organizer",
-      enDesc:
-        "Keep your workspace tidy and elegant with this bamboo wood minimalist desk organizer.",
-      arName: "منسق مكتب مبسط",
-      arDesc:
-        "حافظ على مساحة عملك مرتبة وأنيقة مع منظم المكتب هذا مبسط وجميل للحفاظ على ترتيب المكاتب.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1517002011116-f35d79664da9?q=80&w=1770&auto=format&fit=crop",
-    },
-    {
-      categoryId: cat1.id,
-      price: 199.5,
-      stock: 30,
-      sku: "PROD-ELEC-003",
-      enName: "Mechanical Keyboard Pro",
-      enDesc:
-        "Tactile, responsive, and beautifully designed mechanical keyboard with custom RGB lighting options.",
-      arName: "لوحة مفاتيح ميكانيكية احترافية",
-      arDesc:
-        "لوحة مفاتيح ميكانيكية ذات استجابة سريعة وتصميم جميل مع إضاءة قوية.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1595225476474-87563907a212?q=80&w=1771&auto=format&fit=crop",
-    },
-    {
-      categoryId: cat2.id,
-      price: 89.0,
-      stock: 120,
-      sku: "PROD-ACC-003",
-      enName: "Ergonomic Laptop Stand",
-      enDesc:
-        "Improve your posture and cooling with this premium aluminum ergonomic laptop stand. Fits all laptops up to 17 inches.",
-      arName: "حامل لابتوب مريح",
-      arDesc:
-        "قم بتحسين وضع جلوسك وتبريد اللابتوب من خلال هذا الحامل الألمنيوم الفاخر.",
-      imageUrl:
-        "https://images.unsplash.com/photo-1621538604771-4475cc502ce5?q=80&w=1770&auto=format&fit=crop",
     },
   ];
 
@@ -221,24 +157,19 @@ async function main() {
       isActive: true,
     },
   });
-  console.log("Created sample coupon: WELCOME10 (10% off)");
 
   // 7. Ensure Settings exist
-  const existingSettings = await prisma.settings.findUnique({
+  await prisma.settings.upsert({
     where: { businessId: 1 },
+    update: {},
+    create: {
+      businessId: 1,
+      seoTitle: "StratumX Store",
+      seoDescription: "Multi-business e-commerce platform.",
+      currency: "USD",
+      theme: "default",
+    },
   });
-  if (!existingSettings) {
-    await prisma.settings.create({
-      data: {
-        businessId: 1,
-        seoTitle: "StratumX - Premium Tech Store",
-        seoDescription: "Shop the latest and greatest tech products.",
-        currency: "USD",
-        theme: "default",
-      },
-    });
-    console.log("Created default Settings.");
-  }
 
   console.log("✅ Seeding complete!");
 }

@@ -1,16 +1,19 @@
 import Stripe from "stripe";
 import prisma from "../../config/db.js";
-import { OrderStatus, PaymentStatus, PaymentMethod } from "@prisma/client";
+import pkg from "@prisma/client";
+const { OrderStatus, PaymentStatus, PaymentMethod } = pkg;
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:3000";
 
 /**
  * Creates a Stripe Checkout Session.
- * Items come from the frontend cart (array of { productId, quantity }).
- * We validate each product against the DB and build line items for Stripe.
  */
-export const createCheckoutSession = async (items, businessId = 1) => {
+export const createCheckoutSession = async (
+  items,
+  businessId = 1,
+  { customerEmail = null, lang = "en" } = {},
+) => {
   if (!items || items.length === 0) throw new Error("Cart is empty");
 
   const lineItems = [];
@@ -19,12 +22,15 @@ export const createCheckoutSession = async (items, businessId = 1) => {
   for (const item of items) {
     const product = await prisma.product.findUnique({
       where: { id: item.productId },
-      include: { translations: true },
+      include: { translations: { where: { lang } } },
     });
 
-    if (!product) throw new Error(`Product ${item.productId} not found`);
+    if (!product || !product.isActive || product.isDeleted)
+      throw new Error(`Product ${item.productId} not found`);
     if (product.stock < item.quantity)
-      throw new Error(`Not enough stock for: ${product.translations[0]?.name}`);
+      throw new Error(
+        `Not enough stock for: ${product.translations[0]?.name || "Product"}`,
+      );
 
     const name = product.translations[0]?.name || `Product #${product.id}`;
 
@@ -32,7 +38,7 @@ export const createCheckoutSession = async (items, businessId = 1) => {
       price_data: {
         currency: "usd",
         product_data: { name },
-        unit_amount: Math.round(product.price * 100), // Stripe expects cents
+        unit_amount: Math.round(product.price * 100),
       },
       quantity: item.quantity,
     });
@@ -44,9 +50,9 @@ export const createCheckoutSession = async (items, businessId = 1) => {
     });
   }
 
-  // Store cart data as metadata for the webhook to use
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ["card"],
+    customer_email: customerEmail,
     line_items: lineItems,
     mode: "payment",
     success_url: `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -62,7 +68,6 @@ export const createCheckoutSession = async (items, businessId = 1) => {
 
 /**
  * Handles Stripe webhook events.
- * On checkout.session.completed: creates the Order in the DB.
  */
 export const handleWebhook = async (rawBody, signature) => {
   const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
@@ -81,32 +86,13 @@ export const handleWebhook = async (rawBody, signature) => {
     const bId = parseInt(businessId, 10);
 
     await prisma.$transaction(async (tx) => {
-      // Find or create guest user
-      let guestUser = await tx.user.findFirst({
-        where: { email: "guest@stratumx.local", businessId: bId },
-      });
-
-      if (!guestUser) {
-        const customerRole = await tx.role.findFirst({
-          where: { name: "CUSTOMER", businessId: bId },
-        });
-        guestUser = await tx.user.create({
-          data: {
-            businessId: bId,
-            roleId: customerRole.id,
-            name: "Guest Checkout",
-            email: "guest@stratumx.local",
-            password: "guest_no_login",
-          },
-        });
-      }
-
       const orderNumber = `ORD-${session.id.slice(-8).toUpperCase()}`;
       const totalAmount = session.amount_total / 100;
 
+      // New Redesign: Store guest info directly in Order, userId is null
       const order = await tx.order.create({
         data: {
-          userId: guestUser.id,
+          userId: null, // Guest checkout via Stripe
           businessId: bId,
           orderNumber,
           totalAmount,
@@ -114,13 +100,15 @@ export const handleWebhook = async (rawBody, signature) => {
           paymentStatus: PaymentStatus.COMPLETED,
           paymentMethod: PaymentMethod.STRIPE,
           transactionId: session.id,
+          customerEmail: session.customer_details?.email,
+          customerName: session.customer_details?.name,
           items: { create: items },
         },
-        include: { items: true },
       });
 
       // Deduct stock
       for (const item of items) {
+        // We use atomic decrement
         await tx.product.update({
           where: { id: item.productId },
           data: { stock: { decrement: item.quantity } },

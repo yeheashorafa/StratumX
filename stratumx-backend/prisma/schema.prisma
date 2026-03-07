@@ -277,25 +277,29 @@ model CartItem {
 model Order {
   id              Int           @id @default(autoincrement())
   businessId      Int
-  userId          Int
+  userId          Int?
   orderNumber     String        @unique
   totalAmount     Float
-  status          OrderStatus   @default(PENDING) // pending/completed/cancelled
+  status          OrderStatus   @default(PENDING)
   paymentStatus   PaymentStatus @default(PENDING)
   paymentMethod   PaymentMethod @default(CASH_ON_DELIVERY)
   transactionId   String?
   shippingAddress String?       @db.Text
   billingAddress  String?       @db.Text
+  customerEmail   String?
+  customerName    String?
+  customerPhone   String?
   couponId        Int?
   createdAt       DateTime      @default(now())
   updatedAt       DateTime      @updatedAt
   items           OrderItem[]
-  user            User          @relation(fields: [userId], references: [id], onDelete: Restrict)
+  user            User?         @relation(fields: [userId], references: [id], onDelete: Restrict)
   business        Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
   coupon          Coupon?       @relation(fields: [couponId], references: [id], onDelete: SetNull)
 
   @@index([businessId])
   @@index([userId])
+  @@map("orders")
 }
 
 model OrderItem {
@@ -308,6 +312,7 @@ model OrderItem {
   product       Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 
   @@unique([orderId, productId])
+  @@map("order_items")
 }
 
 //////////////////////////

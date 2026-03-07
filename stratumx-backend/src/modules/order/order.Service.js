@@ -1,13 +1,28 @@
 import prisma from "../../config/db.js";
-import { OrderStatus, PaymentStatus, PaymentMethod } from "@prisma/client";
+import pkg from "@prisma/client";
+import crypto from "crypto";
 
-export const checkoutGuest = async (
+const { OrderStatus, PaymentStatus, PaymentMethod } = pkg;
+
+/**
+ * Creates an order for a Guest or Logged-in user.
+ *
+ * @param {Array} items - [{ productId, quantity }]
+ * @param {Number} businessId
+ * @param {Object} customerInfo - { email, name, phone, userId, shippingAddress, billingAddress, paymentMethod, lang }
+ */
+export const checkout = async (
   items,
   businessId = 1,
   {
+    userId = null,
+    customerEmail = null,
+    customerName = null,
+    customerPhone = null,
     shippingAddress = null,
     billingAddress = null,
     paymentMethod = PaymentMethod.CASH_ON_DELIVERY,
+    lang = "en",
   } = {},
 ) => {
   if (!items || items.length === 0) {
@@ -19,16 +34,36 @@ export const checkoutGuest = async (
     const orderItemsData = [];
 
     for (const item of items) {
+      // 1. Fetch product with required language translation
       const product = await tx.product.findUnique({
         where: { id: item.productId },
-        include: { translations: true, images: true },
+        include: {
+          translations: {
+            where: { lang },
+          },
+        },
       });
 
-      if (!product) throw new Error(`Product ID ${item.productId} not found`);
+      if (!product || product.isDeleted || !product.isActive) {
+        throw new Error(`Product ID ${item.productId} is not available`);
+      }
 
-      if (item.quantity > product.stock) {
+      // 2. ATOMIC INVENTORY UPDATE (Prevention of Race Conditions)
+      // We use updateMany with a condition on the stock to ensure it's a "Compare-and-Swap" style atomic operation.
+      const updateResult = await tx.product.updateMany({
+        where: {
+          id: product.id,
+          stock: { gte: item.quantity }, // Critical: Ensure stock hasn't changed since we read it
+        },
+        data: {
+          stock: { decrement: item.quantity },
+        },
+      });
+
+      if (updateResult.count === 0) {
+        const productName = product.translations[0]?.name || "Product";
         throw new Error(
-          `Not enough stock for product ${product.translations[0]?.name}`,
+          `Insufficient stock for: ${productName}. It might have been sold out just now.`,
         );
       }
 
@@ -39,43 +74,21 @@ export const checkoutGuest = async (
         quantity: item.quantity,
         priceSnapshot: product.price,
       });
-
-      // Deduct Stock
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock: product.stock - item.quantity },
-      });
     }
 
-    // Find or create guest user for this business
-    let guestUser = await tx.user.findFirst({
-      where: { email: "guest@stratumx.local", businessId },
-    });
+    // 3. Generate Robust Order Number
+    // Format: ORD-YEARMMDD-RANDOMSTRING (Shorter and professional)
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, "");
+    const randomStr = crypto.randomBytes(3).toString("hex").toUpperCase();
+    const orderNumber = `ORD-${dateStr}-${randomStr}`;
 
-    if (!guestUser) {
-      const customerRole = await tx.role.findFirst({
-        where: { name: "CUSTOMER", businessId },
-      });
-
-      guestUser = await tx.user.create({
-        data: {
-          businessId,
-          roleId: customerRole.id,
-          name: "Guest Checkout",
-          email: "guest@stratumx.local",
-          password: "guest_checkout_no_login",
-        },
-      });
-    }
-
-    const orderNumber = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-
+    // 4. Create Order
     const order = await tx.order.create({
       data: {
-        userId: guestUser.id,
+        userId, // Null if guest
         businessId,
-        totalAmount: total,
         orderNumber,
+        totalAmount: total,
         status: OrderStatus.PENDING,
         paymentStatus: PaymentStatus.PENDING,
         paymentMethod,
@@ -83,6 +96,9 @@ export const checkoutGuest = async (
           ? JSON.stringify(shippingAddress)
           : null,
         billingAddress: billingAddress ? JSON.stringify(billingAddress) : null,
+        customerEmail,
+        customerName,
+        customerPhone,
         items: { create: orderItemsData },
       },
       include: { items: true },
@@ -92,58 +108,73 @@ export const checkoutGuest = async (
   });
 };
 
+// Backwards compatibility for the controller if it calls checkoutGuest
+export const checkoutGuest = (items, businessId, options) => {
+  return checkout(items, businessId, { ...options, userId: null });
+};
+
 export const getUserOrders = async (userId) => {
   return prisma.order.findMany({
     where: { userId },
-    include: { items: true },
+    include: {
+      items: {
+        include: {
+          product: {
+            include: {
+              translations: true,
+              images: true,
+            },
+          },
+        },
+      },
+    },
     orderBy: { createdAt: "desc" },
   });
 };
 
 export const getAllOrders = async ({ businessId, page = 1, limit = 10 }) => {
   const skip = (page - 1) * limit;
-  const whereClause = { businessId };
-
   const [orders, total] = await Promise.all([
     prisma.order.findMany({
-      where: whereClause,
+      where: { businessId },
       skip,
       take: limit,
       include: { items: true, user: true },
       orderBy: { createdAt: "desc" },
     }),
-    prisma.order.count({ where: whereClause }),
+    prisma.order.count({ where: { businessId } }),
   ]);
 
   return {
     data: orders,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    },
+    pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
   };
 };
 
 export const getOrderById = async (id) => {
   return prisma.order.findUnique({
     where: { id },
-    include: { items: true, user: true },
+    include: {
+      items: {
+        include: {
+          product: {
+            include: {
+              translations: true,
+              images: true,
+            },
+          },
+        },
+      },
+      user: true,
+    },
   });
 };
 
 export const updateOrderStatus = async (id, status) => {
-  // Accept both string and enum values for backwards compat
-  const validStatuses = Object.values(OrderStatus);
   const normalizedStatus = status?.toUpperCase();
-
-  if (!validStatuses.includes(normalizedStatus)) {
-    throw new Error(
-      `Invalid status. Must be one of: ${validStatuses.join(", ")}`,
-    );
+  if (!Object.values(OrderStatus).includes(normalizedStatus)) {
+    throw new Error(`Invalid status: ${status}`);
   }
-
   return prisma.order.update({
     where: { id },
     data: { status: normalizedStatus },
@@ -151,15 +182,10 @@ export const updateOrderStatus = async (id, status) => {
 };
 
 export const updatePaymentStatus = async (id, paymentStatus, transactionId) => {
-  const validStatuses = Object.values(PaymentStatus);
   const normalizedStatus = paymentStatus?.toUpperCase();
-
-  if (!validStatuses.includes(normalizedStatus)) {
-    throw new Error(
-      `Invalid payment status. Must be one of: ${validStatuses.join(", ")}`,
-    );
+  if (!Object.values(PaymentStatus).includes(normalizedStatus)) {
+    throw new Error(`Invalid payment status: ${paymentStatus}`);
   }
-
   return prisma.order.update({
     where: { id },
     data: {
