@@ -21,11 +21,19 @@ export const getOrders = async (req, res, next) => {
 
 export const getAll = async (req, res, next) => {
   try {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 10;
+
     const orders = await orderService.getAllOrders({
-      businessId: Number(req.query.businessId) || req.user.businessId,
-      page: Number(req.query.page) || 1,
-      limit: Number(req.query.limit) || 10,
+      businessId: req.user.businessId,
+      page,
+      limit,
     });
+
     res.json(orders);
   } catch (err) {
     next(err);
