@@ -1,3 +1,11 @@
+"use client";
+import { useState, useEffect } from "react";
+import {
+  fetchServices,
+  createService,
+  updateService,
+  deleteService,
+} from "../../../api/services";
 import Pagination from "../../../components/Pagination";
 
 export default function ServicesPage() {

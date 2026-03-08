@@ -1,3 +1,10 @@
+"use client";
+import { useState, useEffect } from "react";
+import {
+  fetchOrders,
+  updateOrderStatus,
+  deleteOrder,
+} from "../../../api/orders";
 import Pagination from "../../../components/Pagination";
 
 export default function AdminOrdersPage() {

@@ -1,3 +1,11 @@
+"use client";
+import { useState, useEffect } from "react";
+import {
+  fetchPages,
+  createPage,
+  updatePage,
+  deletePage,
+} from "../../../api/pages";
 import Pagination from "../../../components/Pagination";
 
 export default function CMSPages() {

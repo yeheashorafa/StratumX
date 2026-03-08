@@ -1,3 +1,6 @@
+"use client";
+import { useState, useEffect } from "react";
+import { fetchUsers, updateUser, deleteUser } from "../../../api/users";
 import Pagination from "../../../components/Pagination";
 
 export default function UsersPage() {
