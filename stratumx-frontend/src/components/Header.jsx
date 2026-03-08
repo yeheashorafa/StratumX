@@ -184,7 +184,7 @@ export default function Header() {
                   />
                 </svg>
                 {cartItemCount > 0 && (
-                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1 -translate-y-1 shadow-sm">
+                  <span className="absolute top-6 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1 -translate-y-1 shadow-sm">
                     {cartItemCount}
                   </span>
                 )}
@@ -193,7 +193,7 @@ export default function Header() {
               {/* Mini Cart Dropdown */}
               {isCartOpen && (
                 <div
-                  className={`absolute top-full ${language === "ar" ? "left-0" : "right-0"} mt-2 w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}
+                  className={`absolute top-full ${language === "ar" ? "left-0" : "right-0"} mt-2 w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-100 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}
                 >
                   <div className="p-4 overflow-y-auto max-h-[400px]">
                     <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
