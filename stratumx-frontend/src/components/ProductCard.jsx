@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import Image from "next/image";
+import { useUIStore } from "@/store/uiStore";
 
 export default function ProductCard({ product, onAddToCart }) {
   const { language } = useUIStore();
