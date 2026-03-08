@@ -7,7 +7,9 @@ import { useTheme } from "next-themes";
 
 export default function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   const items = useCartStore((state) => state.items);
+  const removeItem = useCartStore((state) => state.removeItem);
 
   const { language, toggleLanguage } = useUIStore();
   const { theme, setTheme } = useTheme();
@@ -21,6 +23,11 @@ export default function Header() {
   const cartItemCount = mounted
     ? items.reduce((acc, item) => acc + item.quantity, 0)
     : 0;
+
+  const cartTotal = items.reduce(
+    (acc, item) => acc + item.price * item.quantity,
+    0,
+  );
 
   const links = [
     { label: language === "en" ? "Home" : "الرئيسية", href: "/" },
@@ -153,29 +160,136 @@ export default function Header() {
               )}
             </div>
 
-            <Link
-              href="/cart"
-              className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            {/* Cart with Dropdown */}
+            <div
+              className="relative"
+              onMouseEnter={() => setIsCartOpen(true)}
+              onMouseLeave={() => setIsCartOpen(false)}
             >
-              <svg
-                className="w-6 h-6"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <Link
+                href="/cart"
+                className="relative p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              {cartItemCount > 0 && (
-                <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1 -translate-y-1 shadow-sm">
-                  {cartItemCount}
-                </span>
+                <svg
+                  className="w-6 h-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                {cartItemCount > 0 && (
+                  <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-1 -translate-y-1 shadow-sm">
+                    {cartItemCount}
+                  </span>
+                )}
+              </Link>
+
+              {/* Mini Cart Dropdown */}
+              {isCartOpen && (
+                <div
+                  className={`absolute top-full ${language === "ar" ? "left-0" : "right-0"} mt-2 w-80 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-gray-100 dark:border-gray-800 z-[100] overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200`}
+                >
+                  <div className="p-4 overflow-y-auto max-h-[400px]">
+                    <div className="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-800">
+                      <h3 className="font-bold text-gray-900 dark:text-gray-100">
+                        {language === "en" ? "Shopping Cart" : "سلة التسوق"}
+                      </h3>
+                      <span className="text-xs text-gray-500">
+                        {cartItemCount} {language === "en" ? "items" : "منتجات"}
+                      </span>
+                    </div>
+
+                    {items.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <p className="text-gray-500 text-sm">
+                          {language === "en"
+                            ? "Your cart is empty"
+                            : "سلة التسوق فارغة"}
+                        </p>
+                      </div>
+                    ) : (
+                      <div className="space-y-4">
+                        {items.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex gap-3 animate-in fade-in slide-in-from-right-1"
+                          >
+                            <div className="w-16 h-16 rounded-lg bg-gray-50 dark:bg-gray-800 shrink-0 overflow-hidden">
+                              {item.image && (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              )}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <h4 className="text-sm font-bold text-gray-900 dark:text-gray-100 truncate">
+                                {item.name}
+                              </h4>
+                              <p className="text-xs text-gray-500">
+                                {item.quantity} x ${item.price.toFixed(2)}
+                              </p>
+                            </div>
+                            <button
+                              onClick={() => removeItem(item.id)}
+                              className="p-1 text-gray-400 hover:text-red-500 transition-colors self-start"
+                            >
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M6 18L18 6M6 6l12 12"
+                                />
+                              </svg>
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {items.length > 0 && (
+                    <div className="p-4 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-100 dark:border-gray-800">
+                      <div className="flex justify-between items-center mb-4">
+                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                          {language === "en" ? "Total:" : "المجموع:"}
+                        </span>
+                        <span className="text-lg font-bold text-blue-600 dark:text-blue-400">
+                          ${cartTotal.toFixed(2)}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Link
+                          href="/cart"
+                          className="px-4 py-2 text-center text-sm font-bold text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                        >
+                          {language === "en" ? "View Cart" : "عرض السلة"}
+                        </Link>
+                        <Link
+                          href="/checkout"
+                          className="px-4 py-2 text-center text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm"
+                        >
+                          {language === "en" ? "Checkout" : "الدفع"}
+                        </Link>
+                      </div>
+                    </div>
+                  )}
+                </div>
               )}
-            </Link>
+            </div>
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

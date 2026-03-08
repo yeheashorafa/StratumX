@@ -18,6 +18,7 @@ export default function CheckoutPage() {
     address: "",
     city: "",
     zipCode: "",
+    email: "",
     paymentMethod: "credit_card",
     cardNumber: "",
     saveInfo: false,
@@ -51,7 +52,11 @@ export default function CheckoutPage() {
         quantity: item.quantity,
       }));
 
-      const { url } = await createCheckoutSession(checkoutItems, 1);
+      const { url } = await createCheckoutSession(
+        checkoutItems,
+        1,
+        shippingData.email,
+      );
 
       if (url) {
         window.location.href = url; // Redirect to Stripe
@@ -257,6 +262,24 @@ export default function CheckoutPage() {
                     }
                     className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-colors dark:text-white"
                     placeholder="New York"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    value={shippingData.email}
+                    onChange={(e) =>
+                      setShippingData({
+                        ...shippingData,
+                        email: e.target.value,
+                      })
+                    }
+                    className="w-full px-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 outline-none transition-colors dark:text-white"
+                    placeholder="john@example.com"
                   />
                 </div>
                 <div className="md:col-span-2">

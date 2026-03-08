@@ -1,10 +1,15 @@
 // api/payment.js
 
-export const createCheckoutSession = async (items, businessId = 1) => {
+export const createCheckoutSession = async (
+  items,
+  businessId = 1,
+  customerEmail = "",
+  lang = "en",
+) => {
   const res = await fetch("/api/payment/create-checkout-session", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ items, businessId }),
+    body: JSON.stringify({ items, businessId, customerEmail, lang }),
   });
 
   if (!res.ok) {

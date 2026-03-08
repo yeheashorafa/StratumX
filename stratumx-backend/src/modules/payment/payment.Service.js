@@ -50,9 +50,8 @@ export const createCheckoutSession = async (
     });
   }
 
-  const session = await stripe.checkout.sessions.create({
+  const sessionData = {
     payment_method_types: ["card"],
-    customer_email: customerEmail,
     line_items: lineItems,
     mode: "payment",
     success_url: `${FRONTEND_URL}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -61,7 +60,13 @@ export const createCheckoutSession = async (
       businessId: String(businessId),
       items: JSON.stringify(validatedItems),
     },
-  });
+  };
+
+  if (customerEmail && customerEmail.trim() !== "") {
+    sessionData.customer_email = customerEmail;
+  }
+
+  const session = await stripe.checkout.sessions.create(sessionData);
 
   return { sessionId: session.id, url: session.url };
 };

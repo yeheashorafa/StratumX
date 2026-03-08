@@ -2,10 +2,11 @@ import * as paymentService from "./payment.Service.js";
 
 export const createSession = async (req, res, next) => {
   try {
-    const { items, businessId } = req.body;
+    const { items, businessId, customerEmail, lang } = req.body;
     const result = await paymentService.createCheckoutSession(
       items,
       businessId,
+      { customerEmail, lang },
     );
     res.status(200).json(result);
   } catch (err) {
