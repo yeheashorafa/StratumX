@@ -2,6 +2,12 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useUIStore } from "@/store/uiStore";
+import { generatePageMetadata } from "../utils/metadata";
+
+export const metadata = generatePageMetadata({
+  title: "About Us",
+  path: "/about",
+});
 
 export default function AboutPage() {
   const [mounted, setMounted] = useState(false);

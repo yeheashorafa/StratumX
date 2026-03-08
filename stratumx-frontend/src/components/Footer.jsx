@@ -39,6 +39,12 @@ export default function Footer() {
           >
             {language === "en" ? "Contact" : "تواصل معنا"}
           </Link>
+          <Link
+            href="/orders/track"
+            className="hover:text-blue-600 dark:hover:text-blue-400 transition"
+          >
+            {language === "en" ? "Track Order" : "تتبع الطلب"}
+          </Link>
         </div>
       </div>
     </footer>

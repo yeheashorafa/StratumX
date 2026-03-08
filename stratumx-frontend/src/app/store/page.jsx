@@ -7,6 +7,12 @@ import Pagination from "@/components/Pagination";
 import { fetchProducts } from "@/api/products";
 import { fetchCategories } from "@/api/categories";
 import { useUIStore } from "@/store/uiStore";
+import { generatePageMetadata } from "../utils/metadata";
+
+export const metadata = generatePageMetadata({
+  title: "Store",
+  path: "/store",
+});
 
 function StoreContent() {
   const searchParams = useSearchParams();
@@ -19,8 +25,7 @@ function StoreContent() {
   const [totalPages, setTotalPages] = useState(1);
   const { language } = useUIStore();
 
-  const lang = searchParams?.get("lang") || "en";
-  const businessId = searchParams?.get("businessId") || 1;
+  const businessId = 1;
 
   const addItemToCart = useCartStore((state) => state.addItem);
 
@@ -40,7 +45,6 @@ function StoreContent() {
     const loadProducts = async () => {
       setLoading(true);
       try {
-        // We use the real categoryId if filter is not "all"
         const categoryId = filter === "all" ? undefined : parseInt(filter);
         const response = await fetchProducts(
           businessId,
@@ -69,7 +73,6 @@ function StoreContent() {
     loadProducts();
   }, [businessId, language, currentPage, filter, searchQuery]);
 
-  // Reset page when filter or search changes
   useEffect(() => {
     setCurrentPage(1);
   }, [filter, searchQuery]);

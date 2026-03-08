@@ -200,3 +200,21 @@ export const deleteOrder = async (id) => {
     where: { id },
   });
 };
+
+export const getOrderByNumber = async (orderNumber) => {
+  return prisma.order.findUnique({
+    where: { orderNumber },
+    include: {
+      items: {
+        include: {
+          product: {
+            include: {
+              translations: true,
+              images: true,
+            },
+          },
+        },
+      },
+    },
+  });
+};

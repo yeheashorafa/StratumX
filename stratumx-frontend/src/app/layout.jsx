@@ -4,45 +4,12 @@ import ClientLayout from "./ClientLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
-  ),
-  title: "StratumX | Premium E-Commerce & Corporate Platform",
-  description:
-    "StratumX is a production-ready Fullstack platform combining a high-performance corporate portal with an elegant e-commerce storefront.",
-  keywords: [
-    "E-Commerce",
-    "Corporate",
-    "StratumX",
-    "Next.js",
-    "Fullstack",
-    "Shopping",
-  ],
-  openGraph: {
-    title: "StratumX | Premium E-Commerce & Corporate Platform",
-    description:
-      "Experience the next level of digital commerce and corporate showcases.",
-    url: "https://stratumx.co",
-    siteName: "StratumX",
-    images: [
-      {
-        url: "/og-image.jpg", // Placeholder for actual OG image
-        width: 1200,
-        height: 630,
-        alt: "StratumX Open Graph Image",
-      },
-    ],
-    locale: "en_US",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "StratumX | Premium Platform",
-    description: "Experience the next level of digital commerce.",
-    images: ["/og-image.jpg"],
-  },
-};
+import { generatePageMetadata } from "./utils/metadata";
+
+export const metadata = generatePageMetadata({
+  title: "Premium E-Commerce & Corporate Platform",
+  path: "/",
+});
 
 export default function RootLayout({ children }) {
   return (

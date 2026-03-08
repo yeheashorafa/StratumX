@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { useUIStore } from "@/store/uiStore";
+import Image from "next/image";
 
 export default function ProductCard({ product, onAddToCart }) {
   const { language } = useUIStore();
@@ -15,10 +15,12 @@ export default function ProductCard({ product, onAddToCart }) {
         className="relative h-64 overflow-hidden bg-gray-100 dark:bg-gray-900 block"
       >
         {image ? (
-          <img
+          <Image
             src={image}
             alt={name}
-            className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
+            fill
+            className="object-cover transform group-hover:scale-110 transition-transform duration-500 ease-out"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="absolute inset-0 bg-linear-to-tr from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-800 flex items-center justify-center transform group-hover:scale-110 transition-transform duration-500 ease-out">

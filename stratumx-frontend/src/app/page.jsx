@@ -1,4 +1,5 @@
 "use client";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { fetchProducts } from "../api/products";
@@ -16,7 +17,6 @@ export default function HomePage() {
     setMounted(true);
     const loadProducts = async () => {
       try {
-        // Fetch products, limit to 3 for featured
         const response = await fetchProducts(1, "en", 1, undefined, undefined);
         let data = [];
         if (response && Array.isArray(response.data)) {
@@ -32,7 +32,7 @@ export default function HomePage() {
     loadProducts();
   }, []);
 
-  if (!mounted) return null; // Avoid hydration mismatch
+  if (!mounted) return null;
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -53,7 +53,7 @@ export default function HomePage() {
                 ارتقِ بأعمالك مع <br className="hidden md:block" />
               </>
             )}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-200 to-cyan-300">
+            <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-200 to-cyan-300">
               StratumX
             </span>
           </h1>
@@ -83,7 +83,6 @@ export default function HomePage() {
       <section className="py-20 bg-white dark:bg-black overflow-hidden relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
-            {/* Text Content */}
             <div
               className={`w-full md:w-1/2 ${language === "ar" ? "text-center md:text-right" : "text-center md:text-left"} z-10`}
               dir={language === "ar" ? "rtl" : "ltr"}
@@ -122,18 +121,18 @@ export default function HomePage() {
               </Link>
             </div>
 
-            {/* Image Content - Hidden on small screens */}
             <div className="w-full md:w-1/2 hidden md:flex justify-center relative">
               <div className="absolute inset-0 bg-blue-500/5 dark:bg-blue-500/10 rounded-full filter blur-3xl transform scale-150"></div>
-              <div className="relative z-10 w-full max-w-md rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 transform hover:scale-[1.02] transition-transform duration-500">
-                <img
+              <div className="relative z-10 w-full max-w-md h-[300px] rounded-2xl overflow-hidden shadow-xl border border-gray-100 dark:border-gray-800 transform hover:scale-[1.02] transition-transform duration-500">
+                <Image
                   src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=800&q=80"
                   alt={
                     language === "en" ? "About StratumX" : "عن منصة StratumX"
                   }
-                  className="w-full h-[300px] object-cover"
+                  fill
+                  className="object-cover"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-blue-900/20 to-transparent pointer-events-none"></div>
+                <div className="absolute inset-0 bg-linear-to-r from-blue-900/20 to-transparent pointer-events-none"></div>
               </div>
             </div>
           </div>

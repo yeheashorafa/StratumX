@@ -69,3 +69,16 @@ export const remove = async (req, res, next) => {
     next(err);
   }
 };
+
+export const trackOrder = async (req, res, next) => {
+  try {
+    const { orderNumber } = req.params;
+    const order = await orderService.getOrderByNumber(orderNumber);
+    if (!order) {
+      return res.status(404).json({ message: "Order not found" });
+    }
+    res.json(order);
+  } catch (err) {
+    next(err);
+  }
+};

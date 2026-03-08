@@ -220,13 +220,19 @@ export default function Header() {
                             key={item.id}
                             className="flex gap-3 animate-in fade-in slide-in-from-right-1"
                           >
-                            <div className="w-16 h-16 rounded-lg bg-gray-50 dark:bg-gray-800 shrink-0 overflow-hidden">
-                              {item.image && (
-                                <img
+                            <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-xl overflow-hidden shrink-0 relative">
+                              {item.image ? (
+                                <Image
                                   src={item.image}
                                   alt={item.name}
-                                  className="w-full h-full object-cover"
+                                  fill
+                                  className="object-cover"
                                 />
+                              ) : (
+                                // Placeholder if no image
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">
+                                  No Image
+                                </div>
                               )}
                             </div>
                             <div className="flex-1 min-w-0">

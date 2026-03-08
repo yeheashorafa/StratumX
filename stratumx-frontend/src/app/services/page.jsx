@@ -1,6 +1,12 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useUIStore } from "@/store/uiStore";
+import { generatePageMetadata } from "../utils/metadata";
+
+export const metadata = generatePageMetadata({
+  title: "Our Services",
+  path: "/services",
+});
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);

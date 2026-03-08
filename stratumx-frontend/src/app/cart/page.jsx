@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cartStore";
 import { useUIStore } from "@/store/uiStore";
+import Image from "next/image";
 
 export default function CartPage() {
   const router = useRouter();
@@ -71,12 +72,13 @@ export default function CartPage() {
                   className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col sm:flex-row items-center gap-6 animate-fade-in"
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="w-full sm:w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden shrink-0">
+                  <div className="w-full sm:w-32 h-32 bg-gray-100 dark:bg-gray-700 rounded-xl overflow-hidden shrink-0 relative">
                     {item.image ? (
-                      <img
+                      <Image
                         src={item.image}
                         alt={item.name}
-                        className="w-full h-full object-cover"
+                        fill
+                        className="object-cover"
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
@@ -113,7 +115,7 @@ export default function CartPage() {
                         onClick={() => removeItem(item.id)}
                         className="text-red-500 hover:text-red-700 font-medium text-sm ml-4 sm:ml-0 transition-colors"
                       >
-                        {language === "en" ? "Remove" : "إزالة"}
+                        {language === "en" ? "Remove" : "حذف"}
                       </button>
                     </div>
                   </div>
@@ -144,7 +146,7 @@ export default function CartPage() {
                 </div>
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-700 flex justify-between">
                   <span className="text-xl font-bold text-gray-900 dark:text-white">
-                    {language === "en" ? "Total" : "المجموع"}
+                    {language === "en" ? "Total" : "المجموع الكلي"}
                   </span>
                   <span className="text-xl font-extrabold text-blue-600 dark:text-blue-400">
                     ${total.toFixed(2)}

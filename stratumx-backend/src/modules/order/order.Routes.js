@@ -11,6 +11,7 @@ const router = express.Router();
 // جميع المستخدمين المسجلين يمكنهم إنشاء checkout
 // Make checkout public
 router.post("/checkout", cache("orders"), orderController.checkout);
+router.get("/track/:orderNumber", orderController.trackOrder);
 
 router.use(authMiddleware);
 
