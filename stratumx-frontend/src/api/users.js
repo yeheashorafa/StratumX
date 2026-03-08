@@ -6,8 +6,12 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const fetchUsers = async () => {
-  const res = await fetch(`/api/auth`, {
+export const fetchUsers = async (page = 1, limit = 10) => {
+  const params = new URLSearchParams();
+  if (page) params.append("page", page);
+  if (limit) params.append("limit", limit);
+
+  const res = await fetch(`/api/auth?${params.toString()}`, {
     headers: { ...getAuthHeaders() },
   });
   if (!res.ok) throw new Error("Failed to fetch users");

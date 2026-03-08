@@ -1,15 +1,10 @@
-"use client";
-import { useState, useEffect } from "react";
-import {
-  fetchServices,
-  createService,
-  updateService,
-  deleteService,
-} from "../../../api/services";
+import Pagination from "../../../components/Pagination";
 
 export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,11 +17,17 @@ export default function ServicesPage() {
     status: "active",
   });
 
-  const loadData = async () => {
+  const loadData = async (page = currentPage) => {
     setLoading(true);
     try {
-      const data = await fetchServices(1, "en"); // assumption: businessId = 1
-      setServices(data || []);
+      const response = await fetchServices(1, "en", page, 10);
+      if (response && response.data) {
+        setServices(response.data);
+        setTotalPages(response.pagination?.totalPages || 1);
+      } else {
+        setServices(response || []);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to load services", err);
     } finally {
@@ -35,8 +36,8 @@ export default function ServicesPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(currentPage);
+  }, [currentPage]);
 
   const openCreateModal = () => {
     setEditingId(null);
@@ -208,6 +209,15 @@ export default function ServicesPage() {
             </tbody>
           </table>
         </div>
+        {!loading && services.length > 0 && (
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
 
       {isModalOpen && (

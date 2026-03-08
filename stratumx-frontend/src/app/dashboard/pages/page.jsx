@@ -1,15 +1,10 @@
-"use client";
-import { useState, useEffect } from "react";
-import {
-  fetchPages,
-  createPage,
-  updatePage,
-  deletePage,
-} from "../../../api/pages";
+import Pagination from "../../../components/Pagination";
 
 export default function CMSPages() {
   const [pages, setPages] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,11 +17,17 @@ export default function CMSPages() {
     status: "published",
   });
 
-  const loadData = async () => {
+  const loadData = async (page = currentPage) => {
     setLoading(true);
     try {
-      const data = await fetchPages(1, "en"); // assumption: businessId = 1
-      setPages(data || []);
+      const response = await fetchPages(1, "en", page, 10);
+      if (response && response.data) {
+        setPages(response.data);
+        setTotalPages(response.pagination?.totalPages || 1);
+      } else {
+        setPages(response || []);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to load CMS pages", err);
     } finally {
@@ -35,8 +36,8 @@ export default function CMSPages() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(currentPage);
+  }, [currentPage]);
 
   const openCreateModal = () => {
     setEditingId(null);
@@ -221,6 +222,15 @@ export default function CMSPages() {
             </tbody>
           </table>
         </div>
+        {!loading && pages.length > 0 && (
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
 
       {isModalOpen && (

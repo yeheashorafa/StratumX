@@ -1,26 +1,28 @@
-"use client";
-import { useState, useEffect } from "react";
-import {
-  fetchOrders,
-  updateOrderStatus,
-  deleteOrder,
-} from "../../../api/orders";
+import Pagination from "../../../components/Pagination";
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOrder, setEditingOrder] = useState(null);
   const [newStatus, setNewStatus] = useState("");
 
-  const loadData = async () => {
+  const loadData = async (page = currentPage) => {
     setLoading(true);
     try {
-      // businessId 1, page 1, limit 50
-      const res = await fetchOrders(1, 1, 50);
-      setOrders(res.data || res || []);
+      // businessId 1, page X, limit 10 (dashboard standard)
+      const res = await fetchOrders(1, page, 10);
+      if (res && res.data) {
+        setOrders(res.data);
+        setTotalPages(res.pagination?.totalPages || 1);
+      } else {
+        setOrders(res || []);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to load orders", err);
     } finally {
@@ -29,8 +31,8 @@ export default function AdminOrdersPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(currentPage);
+  }, [currentPage]);
 
   const openEditModal = (order) => {
     setEditingOrder(order);
@@ -169,6 +171,15 @@ export default function AdminOrdersPage() {
             </tbody>
           </table>
         </div>
+        {!loading && orders.length > 0 && (
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
 
       {isModalOpen && editingOrder && (

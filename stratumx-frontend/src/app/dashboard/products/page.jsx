@@ -6,10 +6,13 @@ import {
   updateProduct,
   deleteProduct,
 } from "@/api/products";
+import Pagination from "@/components/Pagination";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -25,17 +28,17 @@ export default function AdminProductsPage() {
     imageFile: null,
   });
 
-  const loadData = async () => {
+  const loadData = async (page = currentPage) => {
     setLoading(true);
     try {
-      const response = await fetchProducts(1, "en", 1, undefined, undefined);
-      let data = [];
-      if (response && Array.isArray(response.data)) {
-        data = response.data;
+      const response = await fetchProducts(1, "en", page, undefined, undefined);
+      if (response && response.data) {
+        setProducts(response.data);
+        setTotalPages(response.pagination?.totalPages || 1);
       } else if (Array.isArray(response)) {
-        data = response;
+        setProducts(response);
+        setTotalPages(1);
       }
-      setProducts(data);
     } catch (err) {
       console.error("Failed to load generic products", err);
     } finally {
@@ -44,8 +47,8 @@ export default function AdminProductsPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(currentPage);
+  }, [currentPage]);
 
   const openCreateModal = () => {
     setEditingId(null);
@@ -261,6 +264,15 @@ export default function AdminProductsPage() {
             </tbody>
           </table>
         </div>
+        {!loading && products.length > 0 && (
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
 
       {isModalOpen && (

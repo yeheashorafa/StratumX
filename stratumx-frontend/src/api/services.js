@@ -6,10 +6,17 @@ const getAuthHeaders = () => {
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
-export const fetchServices = async (businessId = 1, lang = "en") => {
+export const fetchServices = async (
+  businessId = 1,
+  lang = "en",
+  page = 1,
+  limit = 10,
+) => {
   const params = new URLSearchParams();
   if (businessId) params.append("businessId", businessId);
   if (lang) params.append("lang", lang);
+  if (page) params.append("page", page);
+  if (limit) params.append("limit", limit);
 
   const res = await fetch(`/api/services?${params.toString()}`);
   if (!res.ok) throw new Error("Failed to fetch services");

@@ -1,21 +1,27 @@
-"use client";
-import { useState, useEffect } from "react";
-import { fetchUsers, updateUser, deleteUser } from "../../../api/users";
+import Pagination from "../../../components/Pagination";
 
 export default function UsersPage() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
   const [newRole, setNewRole] = useState("");
 
-  const loadData = async () => {
+  const loadData = async (page = currentPage) => {
     setLoading(true);
     try {
-      const data = await fetchUsers();
-      setUsers(data || []);
+      const response = await fetchUsers(page, 10);
+      if (response && response.data) {
+        setUsers(response.data);
+        setTotalPages(response.pagination?.totalPages || 1);
+      } else {
+        setUsers(response || []);
+        setTotalPages(1);
+      }
     } catch (err) {
       console.error("Failed to load users", err);
     } finally {
@@ -24,8 +30,8 @@ export default function UsersPage() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    loadData(currentPage);
+  }, [currentPage]);
 
   const openEditModal = (user) => {
     setEditingUser(user);
@@ -159,6 +165,15 @@ export default function UsersPage() {
             </tbody>
           </table>
         </div>
+        {!loading && users.length > 0 && (
+          <div className="p-4 border-t border-gray-100 dark:border-gray-800">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
+        )}
       </div>
 
       {isModalOpen && editingUser && (
